@@ -27,7 +27,9 @@ export default async function UserPage({
         <input type="text" name="q" />
         <button type="submit">Submit</button>
       </Form>
-      <Link href="/">Go to Home</Link>
+      <Link href="/" prefetch={false}>
+        Go to Home
+      </Link>
     </div>
   );
 }
