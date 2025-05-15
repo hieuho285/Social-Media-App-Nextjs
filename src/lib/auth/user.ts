@@ -5,5 +5,11 @@ import { cache } from "react";
 export const getCurrentUser = cache(async () => {
   const sessionId = await getSessionCookie();
 
-  return await getUserSession(sessionId);
+  if (!sessionId) {
+    return null;
+  }
+
+  const user = await getUserSession(sessionId);
+
+  return user;
 });

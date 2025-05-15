@@ -14,12 +14,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { signInSchema } from "@/lib/zod/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 type formValueType = z.infer<typeof signInSchema>;
 
 export default function SignInForm() {
+  const router = useRouter();
   const form = useForm<formValueType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -30,7 +32,8 @@ export default function SignInForm() {
 
   const onSubmit = async (values: formValueType) => {
     const result = await signIn(values);
-    console.log(result);
+
+    if (result.data) router.refresh();
   };
 
   return (

@@ -10,10 +10,7 @@ export const setSessionInCache = async (
   sessionData: string,
 ) => {
   await redisClient.set(`session:${sessionId}`, sessionData, {
-    expiration: {
-      type: "EX",
-      value: SESSION_EXPIRE_TIME,
-    },
+    ex: SESSION_EXPIRE_TIME,
   });
 };
 

@@ -14,18 +14,10 @@ import {
   setSessionInCache,
 } from "@/services/cache/session";
 
-export async function getUserSession(sessionId: string | null) {
-  if (!sessionId) {
-    return null;
-  }
-
+export async function getUserSession(sessionId: string) {
   const session = await getSessionFromCache(sessionId);
 
-  if (!session) {
-    return null;
-  }
-
-  const { success, data: user } = sessionSchema.safeParse(JSON.parse(session));
+  const { success, data: user } = sessionSchema.safeParse(session);
 
   return success ? user : null;
 }
