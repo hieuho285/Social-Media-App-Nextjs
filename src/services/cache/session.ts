@@ -1,4 +1,5 @@
 import { SESSION_EXPIRE_TIME } from "@/constants";
+import { getCurrentUser } from "@/lib/auth/user";
 import { redisClient } from "@/lib/redis";
 
 export const getSessionFromCache = async (sessionId: string) => {
@@ -16,4 +17,23 @@ export const setSessionInCache = async (
 
 export const deleteSessionFromCache = async (sessionId: string) => {
   await redisClient.del(`session:${sessionId}`);
+};
+
+export const updateSessionExpiration = async () => {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const sessionId = user.id;
+  const sessionData = await getSessionFromCache(sessionId);
+
+  if (!sessionData) {
+    return;
+  }
+
+  await redisClient.set(`session:${sessionId}`, sessionData, {
+    ex: SESSION_EXPIRE_TIME,
+  });
 };

@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/auth/user";
+import { updateSessionExpiration } from "@/services/cache/session";
 import { NextResponse, type NextRequest } from "next/server";
 
 const privateRoutes = ["/private"];
@@ -9,6 +10,8 @@ export async function middleware(request: NextRequest) {
   // const requestHeaders = new Headers(request.headers);
   const response = await middlewareAuth(request);
 
+  await updateSessionExpiration()
+
   return response;
 }
 
@@ -16,6 +19,7 @@ async function middlewareAuth(request: NextRequest) {
   const user = await getCurrentUser();
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "ADMIN";
+
 
   if (
     privateRoutes.some((route) => request.nextUrl.pathname.startsWith(route))

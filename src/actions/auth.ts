@@ -1,8 +1,11 @@
 "use server";
+
 import { comparePassword, hashPassword } from "@/lib/auth/hash";
+import { OAuthClient } from "@/lib/auth/oauth";
 import { createUserSession, deleteUserSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { signInSchema, signUpSchema } from "@/lib/zod/schemas";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export const signIn = async (unsafeData: z.infer<typeof signInSchema>) => {
@@ -129,4 +132,8 @@ export const signOut = async () => {
   return {
     data: null,
   };
+};
+
+export const OAuthSignIn = async () => {
+  redirect(new OAuthClient().createAuthUrl());
 };

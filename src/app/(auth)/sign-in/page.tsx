@@ -1,4 +1,5 @@
 import SignInForm from "@/components/forms/SignInForm";
+import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -24,6 +25,7 @@ export default async function SignInPage() {
             </h1>
           </div>
           <SignInForm />
+
           <p className="text-muted-foreground px-8 text-center text-sm">
             By clicking continue, you agree to our{" "}
             <Link
