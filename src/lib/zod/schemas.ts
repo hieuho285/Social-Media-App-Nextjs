@@ -1,5 +1,5 @@
 import { REGEX } from "@/constants/regex";
-import { UserRole } from "@prisma/client";
+import { OAuthProvider, UserRole } from "@prisma/client";
 import { z } from "zod";
 
 export const signInSchema = z.object({
@@ -29,4 +29,18 @@ export const signUpSchema = z
 export const sessionSchema = z.object({
   id: z.string(),
   role: z.nativeEnum(UserRole),
+});
+
+export const oAuthProviderSchema = z.nativeEnum(OAuthProvider);
+
+export const tokenSchema = z.object({
+  access_token: z.string(),
+  token_type: z.string(),
+});
+
+export const userSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  email: z.string().email(),
+  global_name: z.string().nullable(),
 });

@@ -1,12 +1,8 @@
 import SignInForm from "@/components/forms/SignInForm";
-import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { headers } from "next/headers";
 import Link from "next/link";
 
 export default async function SignInPage() {
-  const headerList = await headers();
-  console.log(headerList.entries());
   return (
     <div className="relative container flex h-[800px] items-center justify-center">
       <Button
