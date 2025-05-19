@@ -11,8 +11,9 @@ export async function GET(
   { params }: { params: Promise<{ provider: string }> },
 ) {
   const { provider: rawProvider } = await params;
+
+  const state = request.nextUrl.searchParams.get("state"); // use to validate the response
   const code = request.nextUrl.searchParams.get("code");
-  const state = request.nextUrl.searchParams.get("state");
   const provider = oAuthProviderSchema.parse(rawProvider);
   console.log(provider);
 

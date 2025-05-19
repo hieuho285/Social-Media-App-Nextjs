@@ -1,5 +1,5 @@
 import crypto from "crypto";
 
-export function createRandomId() {
+export const createRandomId = () => {
   return crypto.randomBytes(512).toString("hex").normalize();
-}
+};

@@ -1,11 +1,16 @@
 import { z } from "zod";
 
-export class InvalidTokenError extends Error {
-  constructor(zodError?: z.ZodError) {
-    super("Invalid Token");
+export class InvalidError extends Error {
+  constructor(property: string, zodError?: z.ZodError) {
+    super(`Invalid ${property}`);
     if (zodError) {
       this.cause = zodError;
     }
+    const capitalizedProperty = property
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join("");
+    this.name = `Invalid${capitalizedProperty}Error`;
   }
 }
 
