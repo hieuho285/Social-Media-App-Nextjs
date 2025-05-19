@@ -1,5 +1,5 @@
-import { InvalidTokenError, InvalidUserError } from "@/lib/errors/authErrors";
-import { tokenSchema, userSchema } from "@/lib/zod/schemas";
+import { InvalidTokenError, InvalidUserError } from "@/lib/errors/auth";
+import { tokenSchema, userSchema } from "@/zod/schemas";
 
 export class OAuthClient<T> {
   private get redirectURI() {

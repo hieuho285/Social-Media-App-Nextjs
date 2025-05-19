@@ -1,15 +1,11 @@
-"use server";
-
 import { COOKIE_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/constants";
 import { cookies } from "next/headers";
 
 export const getSessionCookie = async () => {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(COOKIE_SESSION_KEY);
-  if (!sessionId) {
-    return null;
-  }
-  return sessionId.value;
+
+  return sessionId?.value ?? null;
 };
 
 export const setSessionCookie = async (sessionId: string) => {

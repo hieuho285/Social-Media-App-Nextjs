@@ -1,5 +1,5 @@
-import { getUserSession } from "@/lib/auth/session";
-import { getSessionCookie } from "@/lib/cookies";
+import { getUserFromSession } from "@/cache/helpers";
+import { getSessionCookie } from "@/cookies/session";
 import { cache } from "react";
 
 export const getCurrentUser = cache(async () => {
@@ -9,7 +9,7 @@ export const getCurrentUser = cache(async () => {
     return null;
   }
 
-  const user = await getUserSession(sessionId);
+  const user = await getUserFromSession(sessionId);
 
   return user;
 });

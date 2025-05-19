@@ -1,5 +1,5 @@
+import { getCurrentUser } from "@/auth/user";
 import { SESSION_EXPIRE_TIME } from "@/constants";
-import { getCurrentUser } from "@/lib/auth/user";
 import { redisClient } from "@/lib/redis";
 
 export const getSessionFromCache = async (sessionId: string) => {

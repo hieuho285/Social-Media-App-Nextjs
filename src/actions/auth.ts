@@ -1,14 +1,14 @@
 "use server";
 
-import { comparePassword, hashPassword } from "@/lib/auth/hash";
-import { OAuthClient } from "@/lib/auth/oauth";
-import { createUserSession, deleteUserSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
-import { signInSchema, signUpSchema } from "@/lib/zod/schemas";
+import { OAuthClient } from "@/auth/oauth";
+import { createUserSession, deleteUserSession } from "@/auth/session";
+import { createUser, findUserByUserName } from "@/data-access/user";
+import { comparePassword, hashPassword } from "@/lib/crypto/password";
+import { signInSchema, signUpSchema } from "@/zod/schemas";
+import { SignInType, SignUpType } from "@/zod/types";
 import { redirect } from "next/navigation";
-import { z } from "zod";
 
-export const signIn = async (unsafeData: z.infer<typeof signInSchema>) => {
+export const signIn = async (unsafeData: SignInType) => {
   const result = signInSchema.safeParse(unsafeData);
 
   if (!result.success) {
@@ -20,11 +20,7 @@ export const signIn = async (unsafeData: z.infer<typeof signInSchema>) => {
   const { username, password } = result.data;
 
   // Check if user is already registered
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      username,
-    },
-  });
+  const existingUser = await findUserByUserName(username);
 
   if (!existingUser || !existingUser?.password) {
     return {
@@ -62,7 +58,7 @@ export const signIn = async (unsafeData: z.infer<typeof signInSchema>) => {
   };
 };
 
-export const signUp = async (unsafeData: z.infer<typeof signUpSchema>) => {
+export const signUp = async (unsafeData: SignUpType) => {
   const result = signUpSchema.safeParse(unsafeData);
   if (!result.success) {
     return {
@@ -79,11 +75,7 @@ export const signUp = async (unsafeData: z.infer<typeof signUpSchema>) => {
   }
 
   // Check if user is already registered
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email: result.data.email,
-    },
-  });
+  const existingUser = await findUserByUserName(username);
 
   if (existingUser) {
     return {
@@ -95,12 +87,10 @@ export const signUp = async (unsafeData: z.infer<typeof signUpSchema>) => {
   try {
     const hashedPassword = await hashPassword(password);
 
-    const user = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-      },
+    const user = await createUser({
+      username,
+      email,
+      password: hashedPassword,
     });
 
     await createUserSession(user);

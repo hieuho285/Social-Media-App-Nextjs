@@ -1,6 +1,6 @@
+import { getCurrentUser } from "@/auth/user";
 import { Button } from "@/components/ui/button";
 import SignOutButton from "@/components/user/SignOutButton";
-import { getCurrentUser } from "@/lib/auth/user";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 

@@ -1,5 +1,5 @@
-import { OAuthClient } from "@/lib/auth/oauth";
-import { oAuthProviderSchema } from "@/lib/zod/schemas";
+import { OAuthClient } from "@/auth/oauth";
+import { oAuthProviderSchema } from "@/zod/schemas";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
@@ -18,9 +18,7 @@ export async function GET(
   }
 
   const oAuthUser = await new OAuthClient().fetchUser(code);
-  const user = 
-
-  console.log(user);
+  const user = console.log(user);
 }
 
 export async function POST(request: Request) {
