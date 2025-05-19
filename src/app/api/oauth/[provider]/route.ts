@@ -1,4 +1,7 @@
 import { OAuthClient } from "@/auth/oauth";
+import { getUserById } from "@/data-access/user";
+import { createUserSession } from "@/services/session";
+import { connectUserToAccount } from "@/services/user";
 import { oAuthProviderSchema } from "@/zod/schemas";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
@@ -9,16 +12,40 @@ export async function GET(
 ) {
   const { provider: rawProvider } = await params;
   const code = request.nextUrl.searchParams.get("code");
+  const state = request.nextUrl.searchParams.get("state");
   const provider = oAuthProviderSchema.parse(rawProvider);
+  console.log(provider);
 
-  if (typeof code !== "string") {
+  if (typeof code !== "string" || typeof state !== "string") {
     redirect(
       `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
     );
   }
 
-  const oAuthUser = await new OAuthClient().fetchUser(code);
-  const user = console.log(user);
+  try {
+    const oAuthUser = await new OAuthClient().fetchUser(code, state);
+    const account = await connectUserToAccount(
+      oAuthUser.id,
+      oAuthUser.email,
+      oAuthUser.name,
+    );
+    const user = await getUserById(account.userId);
+
+    if (!user) {
+      redirect(
+        `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
+      );
+    }
+
+    await createUserSession(user);
+  } catch (error) {
+    console.error("Error during OAuth process:", error);
+    redirect(
+      `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
+    );
+  }
+
+  redirect("/");
 }
 
 export async function POST(request: Request) {

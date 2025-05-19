@@ -1,9 +1,9 @@
 "use server";
 
 import { OAuthClient } from "@/auth/oauth";
-import { createUserSession, deleteUserSession } from "@/auth/session";
 import { createUser, findUserByUserName } from "@/data-access/user";
 import { comparePassword, hashPassword } from "@/lib/crypto/password";
+import { createUserSession, deleteUserSession } from "@/services/session";
 import { signInSchema, signUpSchema } from "@/zod/schemas";
 import { SignInType, SignUpType } from "@/zod/types";
 import { redirect } from "next/navigation";
@@ -125,5 +125,5 @@ export const signOut = async () => {
 };
 
 export const OAuthSignIn = async () => {
-  redirect(new OAuthClient().createAuthUrl());
+  redirect(await new OAuthClient().createAuthUrl());
 };

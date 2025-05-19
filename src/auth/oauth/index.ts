@@ -1,4 +1,9 @@
-import { InvalidTokenError, InvalidUserError } from "@/lib/errors/auth";
+import { createState, validateState } from "@/auth/oauth/helpers";
+import {
+  InvalidStateError,
+  InvalidTokenError,
+  InvalidUserError,
+} from "@/lib/errors/auth";
 import { tokenSchema, userSchema } from "@/zod/schemas";
 
 export class OAuthClient<T> {
@@ -19,14 +24,15 @@ export class OAuthClient<T> {
     return url;
   }
 
-  createAuthUrl() {
+  async createAuthUrl() {
+    const state = await createState();
     const url = new URL("https://discord.com/oauth2/authorize");
     url.searchParams.set("client_id", process.env.DISCORD_CLIENT_ID as string);
     console.log(this.redirectURI.toString());
     url.searchParams.set("redirect_uri", this.redirectURI.toString());
     url.searchParams.set("response_type", "code");
     url.searchParams.set("scope", "identify email");
-    console.log(url.toString());
+    url.searchParams.set("state", state);
     return url.toString();
   }
 
@@ -57,7 +63,11 @@ export class OAuthClient<T> {
     };
   }
 
-  async fetchUser(code: string) {
+  async fetchUser(code: string, state: string) {
+    const isValidState = await validateState(state);
+
+    if (!isValidState) throw new InvalidStateError();
+
     const { accessToken, tokenType } = await this.fetchToken(code);
 
     const url = new URL("https://discord.com/api/users/@me");
