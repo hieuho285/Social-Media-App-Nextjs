@@ -1,32 +1,65 @@
-import { createState, validateState } from "@/auth/oauth/helpers";
+import { buildAuthUrl, validateState } from "@/auth/oauth/helpers";
 import {
   InvalidError,
   InvalidStateError,
   InvalidUserError,
 } from "@/lib/errors/auth";
-import { tokenSchema, userSchema } from "@/zod/schemas";
+import { tokenSchema } from "@/zod/schemas";
+import { userInfoType } from "@/zod/types";
+import { OAuthProvider } from "@prisma/client";
+
+export type OAuthConstructorType<T> = {
+  provider: OAuthProvider;
+  clientId: string;
+  clientSecret: string;
+  scopes: string[];
+  urls: { auth: string; token: string; user: string };
+  userInfo: userInfoType<T>;
+};
 
 export class OAuthClient<T> {
-  private get redirectURI() {
-    return new URL("discord", process.env.OAUTH_REDIRECT_URI_BASE as string);
+  private readonly provider: OAuthProvider;
+  private readonly clientId: string;
+  private readonly clientSecret: string;
+  private readonly scopes: string[];
+  private readonly urls: { auth: string; token: string; user: string };
+  private readonly userInfo: userInfoType<T>;
+  private readonly baseRedirectUri = process.env
+    .OAUTH_REDIRECT_URI_BASE as string;
+
+  constructor({
+    provider,
+    clientId,
+    clientSecret,
+    scopes,
+    urls,
+    userInfo,
+  }: OAuthConstructorType<T>) {
+    this.provider = provider;
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
+    this.scopes = scopes;
+    this.urls = urls;
+    this.userInfo = userInfo;
+  }
+
+  private get redirectUri() {
+    return new URL(this.provider, this.baseRedirectUri);
   }
 
   async createAuthUrl() {
-    const state = await createState();
+    const authUrl = buildAuthUrl({
+      providerUrl: this.urls.auth,
+      clientId: this.clientId,
+      redirectUri: this.redirectUri,
+      scope: this.scopes.join(" "),
+    });
 
-    const url = new URL("https://discord.com/oauth2/authorize");
-    url.searchParams.set("client_id", process.env.DISCORD_CLIENT_ID as string);
-    console.log(this.redirectURI.toString());
-    url.searchParams.set("redirect_uri", this.redirectURI.toString());
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("scope", "identify email");
-    url.searchParams.set("state", state);
-
-    return url.toString();
+    return authUrl.toString();
   }
 
   private async fetchToken(code: string) {
-    const response = await fetch("https://discord.com/api/oauth2/token", {
+    const response = await fetch(this.urls.token, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -34,9 +67,9 @@ export class OAuthClient<T> {
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        redirect_uri: this.redirectURI.toString(),
-        client_id: process.env.DISCORD_CLIENT_ID as string,
-        client_secret: process.env.DISCORD_CLIENT_SECRET as string,
+        redirect_uri: this.redirectUri.toString(),
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
       }),
     });
 
@@ -64,10 +97,7 @@ export class OAuthClient<T> {
 
     const { accessToken, tokenType } = await this.fetchToken(code);
 
-    const url = new URL("https://discord.com/api/users/@me");
-
-    const response = await fetch(url.toString(), {
-      method: "GET",
+    const response = await fetch(this.urls.user, {
       headers: {
         Authorization: `${tokenType} ${accessToken}`,
       },
@@ -78,16 +108,12 @@ export class OAuthClient<T> {
     }
 
     const rawData = await response.json();
-    const { data, success, error } = userSchema.safeParse(rawData);
+    const { data, success, error } = this.userInfo.schema.safeParse(rawData);
 
     if (!success) {
       throw new InvalidUserError(error);
     }
 
-    return {
-      id: data.id,
-      email: data.email,
-      name: data.global_name ?? data.username,
-    };
+    return this.userInfo.parse(data);
   }
 }

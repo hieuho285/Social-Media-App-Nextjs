@@ -1,6 +1,6 @@
 "use server";
 
-import { OAuthClient } from "@/auth/oauth";
+import { getOAuthClient } from "@/auth/oauth/helpers";
 import { createUser, findUserByUserName } from "@/data-access/user";
 import { comparePassword, hashPassword } from "@/lib/crypto/password";
 import { createUserSession, deleteUserSession } from "@/services/session";
@@ -125,5 +125,5 @@ export const signOut = async () => {
 };
 
 export const OAuthSignIn = async () => {
-  redirect(await new OAuthClient().createAuthUrl());
+  redirect(await getOAuthClient("discord").createAuthUrl());
 };

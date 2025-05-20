@@ -44,3 +44,10 @@ export const userSchema = z.object({
   email: z.string().email(),
   global_name: z.string().nullable(),
 });
+
+export const discordUserInfoSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  global_name: z.string().nullable(),
+  email: z.string().email(),
+})
