@@ -1,6 +1,6 @@
 "use client";
 
-import { OAuthSignIn, signIn } from "@/actions/auth";
+import { oauthSignIn, signIn } from "@/actions/auth";
 import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { signInSchema } from "@/zod/schemas/schemas";
+import { signInSchema } from "@/zod/schemas/";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -36,7 +36,7 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
 
   const onSubmit = async (values: formValueType) => {
     const result = await signIn(values);
-
+    console.log(result);
     if (result.data) router.refresh();
   };
 
@@ -87,7 +87,7 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
           </span>
         </div>
       </div>
-      <Button onClick={OAuthSignIn} variant="outline" type="button">
+      <Button onClick={oauthSignIn} variant="outline" type="button">
         (
         <Icons.gitHub className="mr-2 h-4 w-4" />) GitHub
       </Button>

@@ -1,6 +1,6 @@
 import { OAuthClient } from "@/auth/oauth";
 
-export const createDiscordOAuthClient = () => {
+export const createGithubOAuthClient = () => {
   return new OAuthClient({
     provider: "discord",
     clientId: process.env.DISCORD_CLIENT_ID as string,

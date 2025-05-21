@@ -1,15 +1,12 @@
-import { getUserFromSession } from "@/cache/helpers";
-import { getSessionCookie } from "@/cookies/session";
+import { getUserSessionFromCache } from "@/cache/session";
+import { getUserSessionCookie } from "@/cookies/session";
 import { cache } from "react";
 
 export const getCurrentUser = cache(async () => {
-  const sessionId = await getSessionCookie();
+  const sessionId = await getUserSessionCookie();
+  if (!sessionId) return null;
+  const user = await getUserSessionFromCache(sessionId);
+  if (!user) return null;
 
-  if (!sessionId) {
-    return null;
-  }
-
-  const user = await getUserFromSession(sessionId);
-
-  return user;
+  return { ...user, sessionId };
 });

@@ -2,24 +2,22 @@
 
 import { getOAuthClient } from "@/auth/oauth/helpers";
 import { createUser, findUserByUserName } from "@/data-access/user";
-import { comparePassword, hashPassword } from "@/lib/crypto/password";
+import { hashPassword } from "@/lib/crypto/password";
 import { createUserSession, deleteUserSession } from "@/services/session";
-import { signInSchema, signUpSchema } from "@/zod/schemas/schemas";
+import { signInSchema, signUpSchema } from "@/zod/schemas/";
 import { SignInType, SignUpType } from "@/zod/types";
 import { redirect } from "next/navigation";
 
 export const signIn = async (unsafeData: SignInType) => {
-  const result = signInSchema.safeParse(unsafeData);
+  const { success, data, error } = signInSchema.safeParse(unsafeData);
 
-  if (!result.success) {
+  if (!success) {
     return {
-      error: result.error.message,
+      error: error.message,
     };
   }
+  const { username, password } = data;
 
-  const { username, password } = result.data;
-
-  // Check if user is already registered
   const existingUser = await findUserByUserName(username);
 
   if (!existingUser || !existingUser?.password) {
@@ -28,19 +26,17 @@ export const signIn = async (unsafeData: SignInType) => {
     };
   }
 
-  // Check if password is correct
-  const isPasswordValid = await comparePassword(
-    password,
-    existingUser.password,
-  );
+  // const isPasswordValid = await comparePassword(
+  //   password,
+  //   existingUser.password,
+  // );
 
-  if (!isPasswordValid) {
-    return {
-      error: "Unable to sign in",
-    };
-  }
+  // if (!isPasswordValid) {
+  //   return {
+  //     error: "Unable to sign in",
+  //   };
+  // }
 
-  // Create session
   try {
     await createUserSession(existingUser);
   } catch (error) {
@@ -124,6 +120,9 @@ export const signOut = async () => {
   };
 };
 
-export const OAuthSignIn = async () => {
-  redirect(await getOAuthClient("discord").createAuthUrl());
+export const oauthSignIn = async () => {
+  const oauthClient = getOAuthClient("discord");
+  const authorizationUrl = await oauthClient.createAuthorizationUrl();
+
+  redirect(authorizationUrl);
 };

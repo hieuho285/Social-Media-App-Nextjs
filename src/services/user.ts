@@ -5,21 +5,26 @@ export const connectUserToAccount = (
   email: string,
   username: string,
 ) => {
-  return prisma.userOAuthAccount.upsert({
+  return prisma.user.upsert({
     where: {
-      providerAccountId_provider: {
-        provider: "discord",
-        providerAccountId: id,
-      },
+      email,
     },
     update: {},
     create: {
-      provider: "discord",
-      providerAccountId: id,
-      user: {
+      email,
+      username,
+      accounts: {
         connectOrCreate: {
-          where: { email },
-          create: { email, username },
+          where: {
+            providerAccountId_provider: {
+              provider: "discord",
+              providerAccountId: id,
+            },
+          },
+          create: {
+            provider: "discord",
+            providerAccountId: id,
+          },
         },
       },
     },

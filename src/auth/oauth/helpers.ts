@@ -1,45 +1,21 @@
 import { createDiscordOAuthClient } from "@/auth/oauth/external/discord";
-import { getStateCookie, setStateCookie } from "@/cookies/state";
+import { createGithubOAuthClient } from "@/auth/oauth/external/github";
+import { getOAuthStateCookie, setOAuthStateCookie } from "@/cookies/state";
 import { createRandomId } from "@/lib/crypto";
 import { InvalidError, UnsupportedProviderError } from "@/lib/errors";
 import { discordUserInfoSchema, githubUserInfoSchema } from "@/zod/schemas";
-import { UserInfoSchemaType } from "@/zod/types";
+import { OAuthUserInfoSchemaType } from "@/zod/types";
 import { OAuthProvider } from "@prisma/client";
 
-type buildAuthUrlType = {
-  authUrl: string;
-  clientId: string;
-  redirectUri: string | URL;
-  scope: string;
-};
-
-export const createState = async () => {
+export const createOAuthState = async () => {
   const state = createRandomId();
-  await setStateCookie(state);
+  await setOAuthStateCookie(state);
   return state;
 };
 
-export const validateState = async (state: string) => {
-  const stateCookie = await getStateCookie();
+export const validateOAuthState = async (state: string) => {
+  const stateCookie = await getOAuthStateCookie();
   return stateCookie === state;
-};
-
-export const buildAuthUrl = async ({
-  authUrl,
-  clientId,
-  redirectUri,
-  scope,
-}: buildAuthUrlType) => {
-  const state = await createState();
-  const url = new URL(authUrl);
-
-  url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", redirectUri.toString());
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", scope);
-  url.searchParams.set("state", state);
-
-  return url.toString();
 };
 
 export const getOAuthClient = (provider: OAuthProvider) => {
@@ -47,31 +23,33 @@ export const getOAuthClient = (provider: OAuthProvider) => {
     case "discord":
       return createDiscordOAuthClient();
     case "github":
-      // TODO: Implement GitHub OAuth client
-      return createDiscordOAuthClient();
+      return createGithubOAuthClient();
     default:
       throw new UnsupportedProviderError(provider);
   }
 };
 
-export const validateUserInfo = (rawData: unknown, provider: OAuthProvider) => {
-  let userInfoSchema: UserInfoSchemaType;
+export const validateOAuthUserInfo = (
+  rawData: unknown,
+  provider: OAuthProvider,
+) => {
+  let oauthUserInfoSchema: OAuthUserInfoSchemaType;
 
   switch (provider) {
     case "discord":
-      userInfoSchema = discordUserInfoSchema;
+      oauthUserInfoSchema = discordUserInfoSchema;
       break;
     case "github":
-      userInfoSchema = githubUserInfoSchema;
+      oauthUserInfoSchema = githubUserInfoSchema;
       break;
     default:
       throw new UnsupportedProviderError(provider);
   }
 
-  const { data, success, error } = userInfoSchema.safeParse(rawData);
+  const { data, success, error } = oauthUserInfoSchema.safeParse(rawData);
 
   if (!success) {
-    throw new InvalidError("User", error);
+    throw new InvalidError("OAuth User", error);
   }
 
   if (provider === "discord") {

@@ -1,20 +1,20 @@
-import { COOKIE_EXPIRATION, STATE_COOKIE_KEY } from "@/constants";
+import { COOKIE_EXPIRE_TIME, COOKIE_OAUTH_STATE_KEY } from "@/constants";
 import { cookies } from "next/headers";
 
-export const setStateCookie = async (state: string) => {
+export const setOAuthStateCookie = async (state: string) => {
   const cookieStore = await cookies();
 
-  cookieStore.set(STATE_COOKIE_KEY, state, {
+  cookieStore.set(COOKIE_OAUTH_STATE_KEY, state, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
-    expires: Date.now() + COOKIE_EXPIRATION * 1000,
+    expires: Date.now() + COOKIE_EXPIRE_TIME * 1000,
   });
 };
 
-export const getStateCookie = async () => {
+export const getOAuthStateCookie = async () => {
   const cookieStore = await cookies();
-  const state = cookieStore.get(STATE_COOKIE_KEY);
+  const oauthState = cookieStore.get(COOKIE_OAUTH_STATE_KEY);
 
-  return state?.value ?? null;
+  return oauthState?.value ?? null;
 };

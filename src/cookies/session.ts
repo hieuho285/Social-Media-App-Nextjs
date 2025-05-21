@@ -1,17 +1,17 @@
-import { COOKIE_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/constants";
+import { COOKIE_USER_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/constants";
 import { cookies } from "next/headers";
 
-export const getSessionCookie = async () => {
+export const getUserSessionCookie = async () => {
   const cookieStore = await cookies();
-  const sessionId = cookieStore.get(COOKIE_SESSION_KEY);
+  const sessionId = cookieStore.get(COOKIE_USER_SESSION_KEY);
 
   return sessionId?.value ?? null;
 };
 
-export const setSessionCookie = async (sessionId: string) => {
+export const setUserSessionCookie = async (sessionId: string) => {
   const cookieStore = await cookies();
 
-  cookieStore.set(COOKIE_SESSION_KEY, sessionId, {
+  cookieStore.set(COOKIE_USER_SESSION_KEY, sessionId, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
@@ -19,8 +19,8 @@ export const setSessionCookie = async (sessionId: string) => {
   });
 };
 
-export const deleteSessionCookie = async () => {
+export const deleteUserSessionCookie = async () => {
   const cookieStore = await cookies();
 
-  cookieStore.delete(COOKIE_SESSION_KEY);
+  cookieStore.delete(COOKIE_USER_SESSION_KEY);
 };

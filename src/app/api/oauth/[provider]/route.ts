@@ -1,8 +1,7 @@
-import { OAuthClient } from "@/auth/oauth";
-import { getUserById } from "@/data-access/user";
+import { getOAuthClient } from "@/auth/oauth/helpers";
 import { createUserSession } from "@/services/session";
 import { connectUserToAccount } from "@/services/user";
-import { oauthProviderSchema } from "@/zod/schemas/schemas";
+import { oauthProviderSchema } from "@/zod/schemas/";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
@@ -14,29 +13,25 @@ export async function GET(
 
   const state = request.nextUrl.searchParams.get("state"); // use to validate the response
   const code = request.nextUrl.searchParams.get("code"); // use to get the access token
-  const provider = oauthProviderSchema.parse(rawProvider);
-  console.log(provider);
 
-  if (typeof code !== "string" || typeof state !== "string") {
+  const { data: provider, success } =
+    oauthProviderSchema.safeParse(rawProvider);
+
+  if (!success || typeof code !== "string" || typeof state !== "string") {
     redirect(
       `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
     );
   }
 
   try {
-    const oAuthUser = await new OAuthClient().fetchUser(code, state);
-    const account = await connectUserToAccount(
-      oAuthUser.id,
-      oAuthUser.email,
-      oAuthUser.name,
-    );
-    const user = await getUserById(account.userId);
+    const oauthClient = getOAuthClient(provider);
+    const oauthUser = await oauthClient.fetchUser(code, state);
 
-    if (!user) {
-      redirect(
-        `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
-      );
-    }
+    const user = await connectUserToAccount(
+      oauthUser.id,
+      oauthUser.email,
+      oauthUser.username,
+    );
 
     await createUserSession(user);
   } catch (error) {

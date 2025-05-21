@@ -26,7 +26,7 @@ export const signUpSchema = z
     }
   });
 
-export const sessionSchema = z.object({
+export const userSessionSchema = z.object({
   id: z.string(),
   role: z.nativeEnum(UserRole),
 });

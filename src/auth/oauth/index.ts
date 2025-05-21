@@ -1,10 +1,10 @@
 import {
-  buildAuthUrl,
-  validateState,
-  validateUserInfo,
+  createOAuthState,
+  validateOAuthState,
+  validateOAuthUserInfo,
 } from "@/auth/oauth/helpers";
-import { InvalidError, InvalidStateError } from "@/lib/errors";
-import { tokenSchema } from "@/zod/schemas";
+import { InvalidError } from "@/lib/errors";
+import { oauthTokenSchema } from "@/zod/schemas";
 import { OAuthProvider } from "@prisma/client";
 
 type OAuthConstructorType = {
@@ -12,7 +12,7 @@ type OAuthConstructorType = {
   clientId: string;
   clientSecret: string;
   scopes: string[];
-  urls: { auth: string; token: string; user: string };
+  urls: { authorization: string; token: string; user: string };
 };
 
 export class OAuthClient {
@@ -20,7 +20,7 @@ export class OAuthClient {
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly scopes: string[];
-  private readonly urls: { auth: string; token: string; user: string };
+  private readonly urls: { authorization: string; token: string; user: string };
   private readonly baseRedirectUri = process.env
     .OAUTH_REDIRECT_URI_BASE as string;
 
@@ -38,19 +38,23 @@ export class OAuthClient {
     this.urls = urls;
   }
 
-  private get redirectUri() {
-    return new URL(this.provider, this.baseRedirectUri);
+  private get redirectUrl() {
+    const url = new URL(this.provider, this.baseRedirectUri);
+
+    return url.toString();
   }
 
-  async createAuthUrl() {
-    const authUrl = buildAuthUrl({
-      authUrl: this.urls.auth,
-      clientId: this.clientId,
-      redirectUri: this.redirectUri,
-      scope: this.scopes.join(" "),
-    });
+  async createAuthorizationUrl() {
+    const state = await createOAuthState();
+    const url = new URL(this.urls.authorization);
 
-    return authUrl;
+    url.searchParams.set("client_id", this.clientId);
+    url.searchParams.set("redirect_uri", this.redirectUrl);
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("scope", this.scopes.join(" "));
+    url.searchParams.set("state", state);
+
+    return url.toString();
   }
 
   private async fetchToken(code: string) {
@@ -62,7 +66,7 @@ export class OAuthClient {
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        redirect_uri: this.redirectUri.toString(),
+        redirect_uri: this.redirectUrl,
         client_id: this.clientId,
         client_secret: this.clientSecret,
       }),
@@ -73,10 +77,10 @@ export class OAuthClient {
     }
 
     const rawData = await response.json();
-    const { data, success, error } = tokenSchema.safeParse(rawData);
+    const { data, success, error } = oauthTokenSchema.safeParse(rawData);
 
     if (!success) {
-      throw new InvalidError("Token", error);
+      throw new InvalidError("OAuth Token", error);
     }
 
     return {
@@ -86,9 +90,11 @@ export class OAuthClient {
   }
 
   async fetchUser(code: string, state: string) {
-    const isValidState = await validateState(state);
+    const isValidState = await validateOAuthState(state);
 
-    if (!isValidState) throw new InvalidStateError();
+    if (!isValidState) {
+      throw new InvalidError("State");
+    }
 
     const { accessToken, tokenType } = await this.fetchToken(code);
 
@@ -103,7 +109,7 @@ export class OAuthClient {
     }
 
     const rawData = await response.json();
-    const user = validateUserInfo(rawData, this.provider);
+    const user = validateOAuthUserInfo(rawData, this.provider);
 
     return user;
   }

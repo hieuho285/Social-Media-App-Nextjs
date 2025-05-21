@@ -1,3 +1,2 @@
-export * from "./authSchemas"
-export * from "./oauthSchemas"
-export * from "./userSchemas"
+export * from "./authSchemas";
+export * from "./oauthSchemas";

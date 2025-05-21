@@ -1,42 +1,45 @@
-import { deleteSessionFromCache, setSessionInCache } from "@/cache/session";
 import {
-  deleteSessionCookie,
-  getSessionCookie,
-  setSessionCookie,
+  deleteUserSessionFromCache,
+  setUserSessionInCache,
+} from "@/cache/session";
+import {
+  deleteUserSessionCookie,
+  getUserSessionCookie,
+  setUserSessionCookie,
 } from "@/cookies/session";
 import { createRandomId } from "@/lib/crypto";
-import { InvalidSessionDataError, NoSessionFoundError } from "@/lib/errors";
-import { sessionSchema } from "@/zod/schemas/schemas";
-import { SessionType } from "@/zod/types";
+import { InvalidError, NoSessionFoundError } from "@/lib/errors";
+import { userSessionSchema } from "@/zod/schemas";
+import { User } from "@prisma/client";
 
-export async function createUserSession(user: SessionType) {
+export async function createUserSession(user: User) {
   const sessionId = createRandomId();
 
-  const { success, data: sessionData, error } = sessionSchema.safeParse(user);
+  const { success, data, error } = userSessionSchema.safeParse(user);
 
   if (!success) {
-    throw new InvalidSessionDataError(error);
+    throw new InvalidError("Session Data", error);
   }
 
   try {
-    await setSessionInCache(sessionId, JSON.stringify(sessionData));
-    await setSessionCookie(sessionId);
+    await setUserSessionInCache(sessionId, data);
+    await setUserSessionCookie(sessionId);
   } catch (error) {
     console.error("Error creating user session:", error);
-    throw new Error("Error creating user session");
+    throw new Error("Error creating session");
   }
 }
 
 export async function deleteUserSession() {
-  const sessionId = await getSessionCookie();
+  const sessionId = await getUserSessionCookie();
 
   if (!sessionId) {
     throw new NoSessionFoundError();
   }
 
   try {
-    await deleteSessionFromCache(sessionId);
-    await deleteSessionCookie();
+    await deleteUserSessionFromCache(sessionId);
+    await deleteUserSessionCookie();
   } catch (error) {
     console.error("Error deleting user session:", error);
     throw new Error("Error deleting user session");

@@ -1,39 +1,40 @@
 import { getCurrentUser } from "@/auth/user";
-import { SESSION_EXPIRE_TIME } from "@/constants";
+import { CACHE_USER_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/constants";
 import { redisClient } from "@/lib/redis";
+import { userSessionSchema } from "@/zod/schemas";
+import { UserSessionType } from "@/zod/types";
 
-export const getSessionFromCache = async (sessionId: string) => {
-  return await redisClient.get(`session:${sessionId}`);
+export const getUserSessionFromCache = async (sessionId: string) => {
+  const rawUser = await redisClient.get(
+    `${CACHE_USER_SESSION_KEY}:${sessionId}`,
+  );
+  if (!rawUser) {
+    return null;
+  }
+
+  const { success, data } = userSessionSchema.safeParse(rawUser);
+
+  return success ? data : null;
 };
 
-export const setSessionInCache = async (
+export const setUserSessionInCache = async (
   sessionId: string,
-  sessionData: string,
+  rawSessionData: UserSessionType,
 ) => {
-  await redisClient.set(`session:${sessionId}`, sessionData, {
+  const sessionData = userSessionSchema.parse(rawSessionData);
+
+  await redisClient.set(`${CACHE_USER_SESSION_KEY}:${sessionId}`, sessionData, {
     ex: SESSION_EXPIRE_TIME,
   });
 };
 
-export const deleteSessionFromCache = async (sessionId: string) => {
-  await redisClient.del(`session:${sessionId}`);
+export const deleteUserSessionFromCache = async (sessionId: string) => {
+  await redisClient.del(`${CACHE_USER_SESSION_KEY}:${sessionId}`);
 };
 
 export const updateSessionExpiration = async () => {
   const user = await getCurrentUser();
+  if (!user) return null;
 
-  if (!user) {
-    return null;
-  }
-
-  const sessionId = user.id;
-  const sessionData = await getSessionFromCache(sessionId);
-
-  if (!sessionData) {
-    return;
-  }
-
-  await redisClient.set(`session:${sessionId}`, sessionData, {
-    ex: SESSION_EXPIRE_TIME,
-  });
+  await setUserSessionInCache(user.sessionId, user);
 };

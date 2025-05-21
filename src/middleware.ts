@@ -1,17 +1,15 @@
 import { getCurrentUser } from "@/auth/user";
 import { updateSessionExpiration } from "@/cache/session";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const privateRoutes = ["/private"];
 const adminRoutes = ["/admin"];
 const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 export async function middleware(request: NextRequest) {
-  // const requestHeaders = new Headers(request.headers);
+  const requestHeaders = new Headers(request.headers);
   const response = await middlewareAuth(request);
-
   await updateSessionExpiration();
-
   return response;
 }
 
