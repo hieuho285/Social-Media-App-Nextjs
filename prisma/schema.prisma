@@ -18,6 +18,7 @@ enum UserRole {
 
 enum OAuthProvider {
   discord
+  github
 }
 
 // Schemas
@@ -40,7 +41,7 @@ model UserOAuthAccount {
   providerAccountId String        @unique
 
   user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @db.ObjectId 
+  userId String @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

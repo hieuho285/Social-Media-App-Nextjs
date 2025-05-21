@@ -4,7 +4,7 @@ import { getOAuthClient } from "@/auth/oauth/helpers";
 import { createUser, findUserByUserName } from "@/data-access/user";
 import { comparePassword, hashPassword } from "@/lib/crypto/password";
 import { createUserSession, deleteUserSession } from "@/services/session";
-import { signInSchema, signUpSchema } from "@/zod/schemas";
+import { signInSchema, signUpSchema } from "@/zod/schemas/schemas";
 import { SignInType, SignUpType } from "@/zod/types";
 import { redirect } from "next/navigation";
 

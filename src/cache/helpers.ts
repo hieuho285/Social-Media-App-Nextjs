@@ -1,5 +1,5 @@
 import { getSessionFromCache } from "@/cache/session";
-import { sessionSchema } from "@/zod/schemas";
+import { sessionSchema } from "@/zod/schemas/schemas";
 
 export async function getUserFromSession(sessionId: string) {
   const session = await getSessionFromCache(sessionId);

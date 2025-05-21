@@ -1,29 +1,26 @@
-import { buildAuthUrl, validateState } from "@/auth/oauth/helpers";
 import {
-  InvalidError,
-  InvalidStateError,
-  InvalidUserError,
-} from "@/lib/errors/auth";
+  buildAuthUrl,
+  validateState,
+  validateUserInfo,
+} from "@/auth/oauth/helpers";
+import { InvalidError, InvalidStateError } from "@/lib/errors";
 import { tokenSchema } from "@/zod/schemas";
-import { userInfoType } from "@/zod/types";
 import { OAuthProvider } from "@prisma/client";
 
-export type OAuthConstructorType<T> = {
+type OAuthConstructorType = {
   provider: OAuthProvider;
   clientId: string;
   clientSecret: string;
   scopes: string[];
   urls: { auth: string; token: string; user: string };
-  userInfo: userInfoType<T>;
 };
 
-export class OAuthClient<T> {
+export class OAuthClient {
   private readonly provider: OAuthProvider;
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly scopes: string[];
   private readonly urls: { auth: string; token: string; user: string };
-  private readonly userInfo: userInfoType<T>;
   private readonly baseRedirectUri = process.env
     .OAUTH_REDIRECT_URI_BASE as string;
 
@@ -33,14 +30,12 @@ export class OAuthClient<T> {
     clientSecret,
     scopes,
     urls,
-    userInfo,
-  }: OAuthConstructorType<T>) {
+  }: OAuthConstructorType) {
     this.provider = provider;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.scopes = scopes;
     this.urls = urls;
-    this.userInfo = userInfo;
   }
 
   private get redirectUri() {
@@ -49,13 +44,13 @@ export class OAuthClient<T> {
 
   async createAuthUrl() {
     const authUrl = buildAuthUrl({
-      providerUrl: this.urls.auth,
+      authUrl: this.urls.auth,
       clientId: this.clientId,
       redirectUri: this.redirectUri,
       scope: this.scopes.join(" "),
     });
 
-    return authUrl.toString();
+    return authUrl;
   }
 
   private async fetchToken(code: string) {
@@ -108,12 +103,8 @@ export class OAuthClient<T> {
     }
 
     const rawData = await response.json();
-    const { data, success, error } = this.userInfo.schema.safeParse(rawData);
+    const user = validateUserInfo(rawData, this.provider);
 
-    if (!success) {
-      throw new InvalidUserError(error);
-    }
-
-    return this.userInfo.parse(data);
+    return user;
   }
 }

@@ -42,3 +42,9 @@ export class InvalidSessionDataError extends Error {
     this.cause = zodError;
   }
 }
+
+export class UnsupportedProviderError extends Error {
+  constructor(provider: never) {
+    super(`Unsupported provider: ${provider}`);
+  }
+}

@@ -5,11 +5,8 @@ import {
   setSessionCookie,
 } from "@/cookies/session";
 import { createRandomId } from "@/lib/crypto";
-import {
-  InvalidSessionDataError,
-  NoSessionFoundError,
-} from "@/lib/errors/auth";
-import { sessionSchema } from "@/zod/schemas";
+import { InvalidSessionDataError, NoSessionFoundError } from "@/lib/errors";
+import { sessionSchema } from "@/zod/schemas/schemas";
 import { SessionType } from "@/zod/types";
 
 export async function createUserSession(user: SessionType) {
