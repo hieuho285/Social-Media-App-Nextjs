@@ -2,7 +2,7 @@
 
 import { getOAuthClient } from "@/auth/oauth/helpers";
 import { createUser, findUserByUserName } from "@/data-access/user";
-import { hashPassword } from "@/lib/crypto/password";
+import { comparePassword, hashPassword } from "@/lib/crypto/password";
 import { createUserSession, deleteUserSession } from "@/services/session";
 import { signInSchema, signUpSchema } from "@/zod/schemas/";
 import { SignInType, SignUpType } from "@/zod/types";
@@ -26,16 +26,16 @@ export const signIn = async (unsafeData: SignInType) => {
     };
   }
 
-  // const isPasswordValid = await comparePassword(
-  //   password,
-  //   existingUser.password,
-  // );
+  const isPasswordValid = await comparePassword(
+    password,
+    existingUser.password,
+  );
 
-  // if (!isPasswordValid) {
-  //   return {
-  //     error: "Unable to sign in",
-  //   };
-  // }
+  if (!isPasswordValid) {
+    return {
+      error: "Unable to sign in",
+    };
+  }
 
   try {
     await createUserSession(existingUser);
@@ -55,24 +55,22 @@ export const signIn = async (unsafeData: SignInType) => {
 };
 
 export const signUp = async (unsafeData: SignUpType) => {
-  const result = signUpSchema.safeParse(unsafeData);
-  if (!result.success) {
+  const { success, data, error } = signUpSchema.safeParse(unsafeData);
+  if (!success) {
     return {
-      error: result.error.message,
+      error: error.message,
     };
   }
-  const { username, email, password, confirmPassword } = result.data;
 
-  // Compare the password and confirmPassword
+  const { username, email, password, confirmPassword } = data;
+
   if (password !== confirmPassword) {
     return {
       error: "Passwords do not match",
     };
   }
 
-  // Check if user is already registered
   const existingUser = await findUserByUserName(username);
-
   if (existingUser) {
     return {
       error: "User already exists",

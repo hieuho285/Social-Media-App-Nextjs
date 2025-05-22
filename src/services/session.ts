@@ -8,40 +8,31 @@ import {
   setUserSessionCookie,
 } from "@/cookies/session";
 import { createRandomId } from "@/lib/crypto";
-import { InvalidError, NoSessionFoundError } from "@/lib/errors";
+import { NoSessionFoundError } from "@/lib/errors";
 import { userSessionSchema } from "@/zod/schemas";
 import { User } from "@prisma/client";
 
-export async function createUserSession(user: User) {
-  const sessionId = createRandomId();
-
-  const { success, data, error } = userSessionSchema.safeParse(user);
-
-  if (!success) {
-    throw new InvalidError("Session Data", error);
-  }
-
+export const createUserSession = async (user: User) => {
   try {
-    await setUserSessionInCache(sessionId, data);
+    const sessionId = createRandomId();
+    const userSession = userSessionSchema.parse(user);
+    await setUserSessionInCache(sessionId, userSession);
     await setUserSessionCookie(sessionId);
   } catch (error) {
-    console.error("Error creating user session:", error);
-    throw new Error("Error creating session");
+    console.log("Error creating user session: ", error);
+    throw new Error("Error Creating User Session");
   }
-}
+};
 
-export async function deleteUserSession() {
-  const sessionId = await getUserSessionCookie();
-
-  if (!sessionId) {
-    throw new NoSessionFoundError();
-  }
-
+export const deleteUserSession = async () => {
   try {
+    const sessionId = await getUserSessionCookie();
+    if (!sessionId) throw new NoSessionFoundError();
+
     await deleteUserSessionFromCache(sessionId);
     await deleteUserSessionCookie();
   } catch (error) {
-    console.error("Error deleting user session:", error);
-    throw new Error("Error deleting user session");
+    console.log("Error deleting user session: ", error);
+    throw new Error("Error Deleting User Session");
   }
-}
+};

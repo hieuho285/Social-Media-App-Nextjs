@@ -3,6 +3,7 @@ import {
   validateOAuthState,
   validateOAuthUserInfo,
 } from "@/auth/oauth/helpers";
+import { env } from "@/lib/env";
 import { InvalidError } from "@/lib/errors";
 import { oauthTokenSchema } from "@/zod/schemas";
 import { OAuthProvider } from "@prisma/client";
@@ -21,8 +22,7 @@ export class OAuthClient {
   private readonly clientSecret: string;
   private readonly scopes: string[];
   private readonly urls: { authorization: string; token: string; user: string };
-  private readonly baseRedirectUri = process.env
-    .OAUTH_REDIRECT_URI_BASE as string;
+  private readonly baseRedirectUri = env.OAUTH_REDIRECT_URL_BASE;
 
   constructor({
     provider,

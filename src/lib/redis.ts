@@ -1,6 +1,7 @@
+import { env } from "@/lib/env";
 import { Redis } from "@upstash/redis";
 
 export const redisClient = new Redis({
-  url: process.env.REDIS_URL,
-  token: process.env.REDIS_TOKEN,
+  url: env.REDIS_URL,
+  token: env.REDIS_TOKEN,
 });

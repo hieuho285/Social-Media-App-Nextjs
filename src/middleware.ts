@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/auth/user";
 import { updateSessionExpiration } from "@/cache/session";
+import { env } from "@/lib/env";
 import { NextRequest, NextResponse } from "next/server";
 
 const privateRoutes = ["/private"];
@@ -7,7 +8,7 @@ const adminRoutes = ["/admin"];
 const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 export async function middleware(request: NextRequest) {
-  const requestHeaders = new Headers(request.headers);
+  // const requestHeaders = new Headers(request.headers);
   const response = await middlewareAuth(request);
   await updateSessionExpiration();
   return response;
@@ -19,15 +20,17 @@ async function middlewareAuth(request: NextRequest) {
   const isAdmin = user?.role === "ADMIN";
 
   if (
-    privateRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
+    privateRoutes.some((route) => request.nextUrl.pathname.startsWith(route)) &&
+    !isAuthenticated
   ) {
-    const callbackUrl = request.url;
-    const redirectUrl = new URL("/sign-in", request.url);
-    redirectUrl.searchParams.append("callbackUrl", callbackUrl);
+    const from = encodeURIComponent(
+      request.nextUrl.pathname + request.nextUrl.search,
+    );
 
-    if (!isAuthenticated) {
-      return NextResponse.redirect(redirectUrl);
-    }
+    const redirectUrl = new URL("/sign-in", request.nextUrl.origin);
+    redirectUrl.searchParams.set("from", from);
+
+    return NextResponse.redirect(redirectUrl);
   }
 
   if (adminRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
@@ -38,10 +41,12 @@ async function middlewareAuth(request: NextRequest) {
 
   if (authRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
     if (isAuthenticated) {
-      const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+      const from = request.nextUrl.searchParams.get("from");
 
-      if (callbackUrl) {
-        return NextResponse.redirect(new URL(callbackUrl, request.url));
+      if (from) {
+        return NextResponse.redirect(
+          new URL(decodeURIComponent(from), env.BASE_URL),
+        );
       }
 
       return NextResponse.redirect(new URL("/", request.url));
