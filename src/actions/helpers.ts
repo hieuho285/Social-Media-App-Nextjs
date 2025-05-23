@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma } from "@prisma/client";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { ZodError } from "zod";
 
 export const asyncActionErrorHandler = <
@@ -7,11 +8,11 @@ export const asyncActionErrorHandler = <
 >(
   fn: T,
 ) => {
-  return (...args: Parameters<T>) => {
+  return async (...args: Parameters<T>) => {
     try {
-      return fn(...args);
+      return await fn(...args);
     } catch (error) {
-      return { error: getErrorMessage(error) };
+      return { success: false as const, error: getErrorMessage(error) };
     }
   };
 };
@@ -19,8 +20,8 @@ export const asyncActionErrorHandler = <
 const getErrorMessage = (error: unknown) => {
   let message = "Something went wrong. Unknown error.";
 
-  if (error instanceof Error) {
-    message = error.message;
+  if (isRedirectError(error)) {
+    throw error;
   } else if (error instanceof ZodError) {
     message = error.message;
   } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -33,6 +34,8 @@ const getErrorMessage = (error: unknown) => {
     message = String(error.message);
   } else if (typeof error === "string") {
     message = error;
+  } else if (error instanceof Error) {
+    message = error.message;
   }
 
   return message;

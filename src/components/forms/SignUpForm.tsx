@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { signUpSchema } from "@/zod/schemas/";
+import { toast } from "react-toastify";
 
 type formValueType = z.infer<typeof signUpSchema>;
 
@@ -33,7 +34,14 @@ export default function SignUpForm() {
 
   const onSubmit = async (values: formValueType) => {
     const result = await signUp(values);
-    console.log(result);
+
+    if (result.success) {
+      if (result.sent) return toast(result.message);
+    }
+
+
+}
+
   };
 
   return (

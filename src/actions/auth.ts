@@ -3,13 +3,16 @@
 import { asyncActionErrorHandler } from "@/actions/helpers";
 import { getOAuthClient } from "@/auth/oauth/helpers";
 import { deleteUserSessionFromCache } from "@/cache/session";
+import { setUnverifiedUserInCache } from "@/cache/unverifiedUser";
 import {
   deleteUserSessionCookie,
   getUserSessionCookie,
 } from "@/cookies/session";
-import { createUser, findUserByUserName } from "@/data-access/user";
+import { findUserByUserName } from "@/data-access/user";
+import { createRandomId } from "@/lib/crypto";
 import { comparePassword, hashPassword } from "@/lib/crypto/password";
 import { NoSessionFoundError, UnableToSignInError } from "@/lib/errors";
+import { sendUserVerificationMail } from "@/lib/sendMail";
 import { createUserSession } from "@/services/session";
 import { signInSchema, signUpSchema } from "@/zod/schemas/";
 import { SignInType, SignUpType } from "@/zod/types";
@@ -49,13 +52,35 @@ export const signUp = asyncActionErrorHandler(
 
     const hashedPassword = await hashPassword(password);
 
-    const user = await createUser({
-      username,
+    // const user = await createUser({
+    //   username,
+    //   email,
+    //   password: hashedPassword,
+    // });
+
+    // await createUserSession(user);
+    const token = createRandomId();
+
+    await setUnverifiedUserInCache(token, {
       email,
       password: hashedPassword,
+      username,
     });
 
-    await createUserSession(user);
+    try {
+      await sendUserVerificationMail({ sendTo: email, token });
+      return {
+        success: true,
+        sent: true,
+        message: "Verification email has been sent to your email." as string,
+      } as const;
+    } catch {
+      return {
+        success: true,
+        sent: false,
+        token,
+      } as const;
+    }
   },
 );
 

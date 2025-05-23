@@ -30,3 +30,9 @@ export const userSessionSchema = z.object({
   id: z.string(),
   role: z.nativeEnum(UserRole),
 });
+
+export const unverifiedUserSchema = z.object({
+  username: z.string(),
+  email: z.string().email(),
+  password: z.string(),
+});

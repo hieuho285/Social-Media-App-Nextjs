@@ -4,6 +4,7 @@ import {
   oauthUserSchema,
   signInSchema,
   signUpSchema,
+  unverifiedUserSchema,
   userSessionSchema,
 } from "@/zod/schemas/";
 import * as z from "zod";
@@ -19,3 +20,5 @@ export type OAuthUserInfoSchemaType =
   | typeof githubUserInfoSchema;
 
 export type OAuthUserInfoType = z.infer<typeof discordUserInfoSchema>;
+
+export type UnverifiedUserType = z.infer<typeof unverifiedUserSchema>;
