@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { signInSchema } from "@/zod/schemas/";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -25,7 +25,6 @@ type formValueType = z.infer<typeof signInSchema>;
 type SignInFormTypes = React.HTMLAttributes<HTMLDivElement>;
 
 export default function SignInForm({ className, ...props }: SignInFormTypes) {
-  const router = useRouter();
   const form = useForm<formValueType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -33,11 +32,15 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
       password: "",
     },
   });
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from") ?? undefined;
 
   const onSubmit = async (values: formValueType) => {
-    const result = await signIn(values);
-    console.log(result);
-    if (result.data) router.refresh();
+    const result = await signIn(values, from);
+
+    if (result?.error) {
+      //TODO: show error
+    }
   };
 
   return (
@@ -87,7 +90,7 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
           </span>
         </div>
       </div>
-      <Button onClick={oauthSignIn} variant="outline" type="button">
+      <Button onClick={() => oauthSignIn(from)} variant="outline" type="button">
         (
         <Icons.gitHub className="mr-2 h-4 w-4" />) GitHub
       </Button>

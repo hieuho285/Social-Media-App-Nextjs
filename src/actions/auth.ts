@@ -1,84 +1,52 @@
 "use server";
 
+import { asyncActionErrorHandler } from "@/actions/helpers";
 import { getOAuthClient } from "@/auth/oauth/helpers";
+import { deleteUserSessionFromCache } from "@/cache/session";
+import {
+  deleteUserSessionCookie,
+  getUserSessionCookie,
+} from "@/cookies/session";
 import { createUser, findUserByUserName } from "@/data-access/user";
 import { comparePassword, hashPassword } from "@/lib/crypto/password";
-import { createUserSession, deleteUserSession } from "@/services/session";
+import { NoSessionFoundError, UnableToSignInError } from "@/lib/errors";
+import { createUserSession } from "@/services/session";
 import { signInSchema, signUpSchema } from "@/zod/schemas/";
 import { SignInType, SignUpType } from "@/zod/types";
 import { redirect } from "next/navigation";
 
-export const signIn = async (unsafeData: SignInType) => {
-  const { success, data, error } = signInSchema.safeParse(unsafeData);
+export const signIn = asyncActionErrorHandler(
+  async (unsafeData: SignInType, from?: string) => {
+    const { username, password } = signInSchema.parse(unsafeData);
 
-  if (!success) {
-    return {
-      error: error.message,
-    };
-  }
-  const { username, password } = data;
+    const existingUser = await findUserByUserName(username);
 
-  const existingUser = await findUserByUserName(username);
+    if (!existingUser || !existingUser?.password) {
+      throw new UnableToSignInError();
+    }
 
-  if (!existingUser || !existingUser?.password) {
-    return {
-      error: "Unable to sign in",
-    };
-  }
+    const isPasswordValid = comparePassword(password, existingUser.password);
 
-  const isPasswordValid = await comparePassword(
-    password,
-    existingUser.password,
-  );
+    if (!isPasswordValid) {
+      throw new UnableToSignInError();
+    }
 
-  if (!isPasswordValid) {
-    return {
-      error: "Unable to sign in",
-    };
-  }
-
-  try {
     await createUserSession(existingUser);
-  } catch (error) {
-    console.log(error);
-    return {
-      error: "Error creating session",
-    };
-  }
 
-  return {
-    data: {
-      username,
-      password,
-    },
-  };
-};
+    redirect(from ?? "/");
+  },
+);
 
-export const signUp = async (unsafeData: SignUpType) => {
-  const { success, data, error } = signUpSchema.safeParse(unsafeData);
-  if (!success) {
-    return {
-      error: error.message,
-    };
-  }
+export const signUp = asyncActionErrorHandler(
+  async (unsafeData: SignUpType) => {
+    const { username, email, password, confirmPassword } =
+      signUpSchema.parse(unsafeData);
 
-  const { username, email, password, confirmPassword } = data;
+    if (password !== confirmPassword) throw new Error("Passwords don't match");
 
-  if (password !== confirmPassword) {
-    return {
-      error: "Passwords do not match",
-    };
-  }
+    const existingUser = await findUserByUserName(username);
+    if (existingUser) throw new Error("User already exists");
 
-  const existingUser = await findUserByUserName(username);
-  if (existingUser) {
-    return {
-      error: "User already exists",
-    };
-  }
-
-  // Create new user
-  try {
     const hashedPassword = await hashPassword(password);
 
     const user = await createUser({
@@ -88,39 +56,20 @@ export const signUp = async (unsafeData: SignUpType) => {
     });
 
     await createUserSession(user);
-  } catch (error) {
-    console.log(error);
-    return {
-      error: "Error creating user",
-    };
-  }
+  },
+);
 
-  return {
-    data: {
-      email,
-      password,
-    },
-  };
-};
+export const signOut = asyncActionErrorHandler(async () => {
+  const sessionId = await getUserSessionCookie();
+  if (!sessionId) throw new NoSessionFoundError();
 
-export const signOut = async () => {
-  try {
-    await deleteUserSession();
-  } catch (error) {
-    console.log(error);
-    return {
-      error: "Error signing out",
-    };
-  }
+  await deleteUserSessionFromCache(sessionId);
+  await deleteUserSessionCookie();
+});
 
-  return {
-    data: null,
-  };
-};
-
-export const oauthSignIn = async () => {
+export const oauthSignIn = asyncActionErrorHandler(async (from?: string) => {
   const oauthClient = getOAuthClient("discord");
-  const authorizationUrl = await oauthClient.createAuthorizationUrl();
+  const authorizationUrl = await oauthClient.createAuthorizationUrl(from);
 
   redirect(authorizationUrl);
-};
+});

@@ -8,7 +8,6 @@ const adminRoutes = ["/admin"];
 const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 export async function middleware(request: NextRequest) {
-  // const requestHeaders = new Headers(request.headers);
   const response = await middlewareAuth(request);
   await updateSessionExpiration();
   return response;
@@ -26,16 +25,14 @@ async function middlewareAuth(request: NextRequest) {
     const from = encodeURIComponent(
       request.nextUrl.pathname + request.nextUrl.search,
     );
-
-    const redirectUrl = new URL("/sign-in", request.nextUrl.origin);
-    redirectUrl.searchParams.set("from", from);
-
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(
+      new URL(`/sign-in?from=${from}`, env.BASE_URL),
+    );
   }
 
   if (adminRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
     if (!isAuthenticated || !isAdmin) {
-      return NextResponse.redirect(new URL("/403", request.url));
+      return NextResponse.redirect(new URL("/403", env.BASE_URL));
     }
   }
 
@@ -43,13 +40,9 @@ async function middlewareAuth(request: NextRequest) {
     if (isAuthenticated) {
       const from = request.nextUrl.searchParams.get("from");
 
-      if (from) {
-        return NextResponse.redirect(
-          new URL(decodeURIComponent(from), env.BASE_URL),
-        );
-      }
-
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(
+        new URL(from ? decodeURIComponent(from) : "/", env.BASE_URL),
+      );
     }
   }
 

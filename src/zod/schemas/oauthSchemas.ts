@@ -3,6 +3,11 @@ import { z } from "zod";
 
 export const oauthProviderSchema = z.nativeEnum(OAuthProvider);
 
+export const oauthStateSchema = z.object({
+  id: z.string(),
+  from: z.string().optional()
+})
+
 export const oauthTokenSchema = z.object({
   access_token: z.string(),
   token_type: z.string(),

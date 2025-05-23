@@ -7,9 +7,17 @@ import { discordUserInfoSchema, githubUserInfoSchema } from "@/zod/schemas";
 import { OAuthUserInfoSchemaType } from "@/zod/types";
 import { OAuthProvider } from "@prisma/client";
 
-export const createOAuthState = async () => {
-  const state = createRandomId();
+export const createOAuthState = async (from?: string) => {
+  const id = createRandomId();
+  const state = encodeURIComponent(
+    JSON.stringify({
+      id,
+      ...(from ? { from } : {}),
+    }),
+  );
+
   await setOAuthStateCookie(state);
+
   return state;
 };
 

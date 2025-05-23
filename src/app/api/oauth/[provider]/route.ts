@@ -1,7 +1,7 @@
 import { getOAuthClient } from "@/auth/oauth/helpers";
 import { createUserSession } from "@/services/session";
 import { connectUserToAccount } from "@/services/user";
-import { oauthProviderSchema } from "@/zod/schemas/";
+import { oauthProviderSchema, oauthStateSchema } from "@/zod/schemas/";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
@@ -12,6 +12,7 @@ export async function GET(
   const { provider: rawProvider } = await params;
 
   const state = request.nextUrl.searchParams.get("state"); // use to validate the response
+
   const code = request.nextUrl.searchParams.get("code"); // use to get the access token
 
   const { data: provider, success } =
@@ -22,6 +23,8 @@ export async function GET(
       `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
     );
   }
+
+  const objState = JSON.parse(decodeURIComponent(state));
 
   try {
     const oauthClient = getOAuthClient(provider);
@@ -41,7 +44,9 @@ export async function GET(
     );
   }
 
-  redirect("/");
+  const { data } = oauthStateSchema.safeParse(objState);
+
+  redirect(data?.from ? data.from : "/");
 }
 
 export async function POST(request: Request) {

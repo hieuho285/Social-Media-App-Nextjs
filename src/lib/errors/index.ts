@@ -20,6 +20,12 @@ export class NoSessionFoundError extends Error {
   }
 }
 
+export class UnableToSignInError extends Error {
+  constructor() {
+    super("Unable to Sign In")
+  }
+}
+
 export class UnsupportedProviderError extends Error {
   constructor(provider: never) {
     super(`Unsupported provider: ${provider}`);

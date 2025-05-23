@@ -40,12 +40,11 @@ export class OAuthClient {
 
   private get redirectUrl() {
     const url = new URL(this.provider, this.baseRedirectUri);
-
     return url.toString();
   }
 
-  async createAuthorizationUrl() {
-    const state = await createOAuthState();
+  async createAuthorizationUrl(from?: string) {
+    const state = await createOAuthState(from);
     const url = new URL(this.urls.authorization);
 
     url.searchParams.set("client_id", this.clientId);
