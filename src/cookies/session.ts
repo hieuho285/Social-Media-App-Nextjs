@@ -1,3 +1,5 @@
+"use server";
+
 import { COOKIE_USER_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/constants";
 import { cookies } from "next/headers";
 

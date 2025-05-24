@@ -6,6 +6,7 @@ import * as z from "zod";
 
 import { signUp } from "@/actions/auth";
 import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
+import ToastWithLink from "@/components/ToastWithLink";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -36,12 +37,13 @@ export default function SignUpForm() {
     const result = await signUp(values);
 
     if (result.success) {
-      if (result.sent) return toast(result.message);
+      if (result.sent)
+        return toast.success(result.message, { position: "top-center" });
+      else
+        toast.error(<ToastWithLink token={result.token} />, {
+          position: "top-center",
+        });
     }
-
-
-}
-
   };
 
   return (

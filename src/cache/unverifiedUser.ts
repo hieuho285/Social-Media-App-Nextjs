@@ -20,7 +20,9 @@ export const setUnverifiedUserInCache = async (
   token: string,
   rawUser: UnverifiedUserType,
 ) => {
-  await redisClient.set(`${CACHE_UNVERIFIED_USER_KEY}:${token}`, rawUser, {
+  const user = unverifiedUserSchema.parse(rawUser);
+
+  await redisClient.set(`${CACHE_UNVERIFIED_USER_KEY}:${token}`, user, {
     ex: CACHE_EXPIRE_TIME,
   });
 };
