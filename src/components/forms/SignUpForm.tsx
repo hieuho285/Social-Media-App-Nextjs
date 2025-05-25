@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 import { signUp } from "@/actions/auth";
 import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
@@ -17,23 +16,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signUpSchema } from "@/zod/schemas/";
+import { signUpSchema, SignUpTypes } from "@/lib/validations";
 import { toast } from "react-toastify";
 
-type formValueType = z.infer<typeof signUpSchema>;
-
 export default function SignUpForm() {
-  const form = useForm<formValueType>({
+  const form = useForm<SignUpTypes>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      username: "",
+      displayName: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values: formValueType) => {
+  const onSubmit = async (values: SignUpTypes) => {
     const result = await signUp(values);
 
     if (result.success) {
@@ -51,12 +48,12 @@ export default function SignUpForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="username"
+          name="displayName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>DisplayName</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Username" {...field} />
+                <Input type="text" placeholder="DisplayName" {...field} />
               </FormControl>
 
               <FormMessage />

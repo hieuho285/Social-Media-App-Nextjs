@@ -3,15 +3,12 @@
 import { asyncActionErrorHandler } from "@/actions/helpers";
 import { getOAuthClient } from "@/auth/oauth/helpers";
 import { deleteUserSessionFromCache } from "@/cache/session";
-import {
-  getUnverifiedUserInCache,
-  setUnverifiedUserInCache,
-} from "@/cache/unverifiedUser";
+import { setUnverifiedUserInCache } from "@/cache/unverifiedUser";
 import {
   deleteUserSessionCookie,
   getUserSessionCookie,
 } from "@/cookies/session";
-import { findUserByUserName } from "@/data-access/user";
+import { findUserByEmail } from "@/data-access/user";
 import { createRandomId } from "@/lib/crypto";
 import { comparePassword, hashPassword } from "@/lib/crypto/password";
 import { NoSessionFoundError, UnableToSignInError } from "@/lib/errors";
@@ -23,9 +20,9 @@ import { redirect } from "next/navigation";
 
 export const signIn = asyncActionErrorHandler(
   async (unsafeData: SignInType, from?: string) => {
-    const { username, password } = signInSchema.parse(unsafeData);
+    const { email, password } = signInSchema.parse(unsafeData);
 
-    const existingUser = await findUserByUserName(username);
+    const existingUser = await findUserByEmail(email);
 
     if (!existingUser || !existingUser?.password) {
       throw new UnableToSignInError();
@@ -50,8 +47,9 @@ export const signUp = asyncActionErrorHandler(
 
     if (password !== confirmPassword) throw new Error("Passwords don't match");
 
-    const existingUser = await findUserByUserName(username);
-    if (existingUser) throw new Error("User already exists");
+    const existingUser = await findUserByEmail(email);
+    if (existingUser && existingUser.password)
+      throw new Error("User already exists");
 
     const hashedPassword = await hashPassword(password);
 

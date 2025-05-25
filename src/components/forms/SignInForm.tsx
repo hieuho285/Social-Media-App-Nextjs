@@ -13,21 +13,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { signInSchema } from "@/zod/schemas/";
+import { signInSchema, SignInTypes } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 
-type formValueType = z.infer<typeof signInSchema>;
-
-type SignInFormTypes = React.HTMLAttributes<HTMLDivElement>;
-
-export default function SignInForm({ className, ...props }: SignInFormTypes) {
-  const form = useForm<formValueType>({
+export default function SignInForm({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  const form = useForm<SignInTypes>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -35,7 +33,7 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
   const from = searchParams.get("from") ?? undefined;
   const oauthError = searchParams.get("oauthError");
 
-  const onSubmit = async (values: formValueType) => {
+  const onSubmit = async (values: SignInTypes) => {
     const result = await signIn(values, from);
 
     if (result?.error) {
@@ -49,12 +47,12 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
-            name="username"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="text" placeholder="Username" {...field} />
+                  <Input type="text" placeholder="Email" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -77,7 +75,12 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
             )}
           />
 
-          <Button className="w-full bg-blue-700 hover:bg-blue-600" type="submit">Submit</Button>
+          <Button
+            className="w-full bg-blue-700 hover:bg-blue-600"
+            type="submit"
+          >
+            Submit
+          </Button>
         </form>
       </Form>
       <div className="relative">
