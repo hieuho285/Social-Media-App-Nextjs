@@ -4,7 +4,6 @@ import { getOAuthStateCookie, setOAuthStateCookie } from "@/cookies/state";
 import { createRandomId } from "@/lib/crypto";
 import { InvalidError, UnsupportedProviderError } from "@/lib/errors";
 import { discordUserInfoSchema, githubUserInfoSchema } from "@/zod/schemas";
-import { OAuthUserInfoSchemaType } from "@/zod/types";
 import { OAuthProvider } from "@prisma/client";
 
 export const createOAuthState = async (from?: string) => {
@@ -41,37 +40,31 @@ export const validateOAuthUserInfo = (
   rawData: unknown,
   provider: OAuthProvider,
 ) => {
-  let oauthUserInfoSchema: OAuthUserInfoSchemaType;
-
-  switch (provider) {
-    case "discord":
-      oauthUserInfoSchema = discordUserInfoSchema;
-      break;
-    case "github":
-      oauthUserInfoSchema = githubUserInfoSchema;
-      break;
-    default:
-      throw new UnsupportedProviderError(provider);
-  }
-
-  const { data, success, error } = oauthUserInfoSchema.safeParse(rawData);
-
-  if (!success) {
-    throw new InvalidError("OAuth User", error);
-  }
-
   if (provider === "discord") {
+    const { data, success, error } = discordUserInfoSchema.safeParse(rawData);
+
+    if (!success) {
+      throw new InvalidError("OAuth User", error);
+    }
+
     return {
       email: data.email,
       id: data.id,
       username: data.global_name ?? data.username,
+    };
+  } else if (provider === "github") {
+    const { data, success, error } = githubUserInfoSchema.safeParse(rawData);
+
+    if (!success) {
+      throw new InvalidError("OAuth User", error);
+    }
+
+    return {
+      email: data.email,
+      id: data.id,
+      username: data.name ?? data.login,
     };
   } else {
-    // TODO: data for github provider
-    return {
-      email: data.email,
-      id: data.id,
-      username: data.global_name ?? data.username,
-    };
+    throw new UnsupportedProviderError(provider);
   }
 };

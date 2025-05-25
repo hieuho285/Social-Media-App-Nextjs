@@ -1,7 +1,12 @@
-import { envSchema } from "@/zod/schemas/env";
+"use server";
 
-const { success, data } = envSchema.safeParse(process.env);
+import { envSchema } from "@/zod/schemas/";
 
-if (!success) throw new Error("Invalid environment variables");
+const { success, data, error } = envSchema.safeParse(process.env);
+console.log(process.env);
+if (!success) {
+  console.log(error);
+  throw new Error("Invalid environment variables");
+}
 
 export const env = data;

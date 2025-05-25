@@ -6,11 +6,11 @@ export const createGithubOAuthClient = () => {
     provider: "discord",
     clientId: env.GITHUB_CLIENT_ID,
     clientSecret: env.GITHUB_CLIENT_SECRET,
-    scopes: ["identify", "email"],
+    scopes: ["user:email", "read:user"],
     urls: {
-      authorization: "https://discord.com/api/oauth2/authorize",
-      token: "https://discord.com/api/oauth2/token",
-      user: "https://discord.com/api/users/@me",
+      authorization: "https://github.com/login/oauth/authorize",
+      token: "https://github.com/login/oauth/access_token",
+      user: "https://api.github.com/user",
     },
   });
 };

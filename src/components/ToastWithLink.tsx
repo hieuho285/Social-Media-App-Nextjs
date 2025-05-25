@@ -1,6 +1,6 @@
 "use client";
 
-import { resendUserVerificationMail } from "@/actions/auth";
+import { resendUserVerificationMail } from "@/actions/resendMail";
 
 export default function ToastWithLink({ token }: { token: string }) {
   return (

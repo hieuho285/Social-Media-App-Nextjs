@@ -26,13 +26,3 @@ export const createUser = async ({
 
   return user;
 };
-
-export const getUserById = async (id: string) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  return user;
-};

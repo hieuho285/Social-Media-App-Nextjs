@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Social Media App",
-    default: "Social Media App",
+    template: "%s | KooL",
+    default: "KooL",
   },
-  description: "The social media app built with Next.js",
+  description: "KooL platform connects people",
 };
 
 export default function RootLayout({

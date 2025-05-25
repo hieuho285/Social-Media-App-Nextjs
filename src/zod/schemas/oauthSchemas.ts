@@ -22,8 +22,8 @@ export const discordUserInfoSchema = z.object({
 
 export const githubUserInfoSchema = z.object({
   id: z.string(),
-  username: z.string(),
-  global_name: z.string().nullable(),
+  login: z.string(),
+  name: z.string().nullable(),
   email: z.string().email(),
 });
 

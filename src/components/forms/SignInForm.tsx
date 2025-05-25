@@ -2,7 +2,6 @@
 
 import { oauthSignIn, signIn } from "@/actions/auth";
 import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
-import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -34,17 +33,18 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
   });
   const searchParams = useSearchParams();
   const from = searchParams.get("from") ?? undefined;
+  const oauthError = searchParams.get("oauthError");
 
   const onSubmit = async (values: formValueType) => {
     const result = await signIn(values, from);
 
     if (result?.error) {
-      //TODO: show error
     }
   };
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
+      {oauthError && <div>{oauthError}</div>}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -77,7 +77,7 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
             )}
           />
 
-          <Button type="submit">Submit</Button>
+          <Button className="w-full bg-blue-700 hover:bg-blue-600" type="submit">Submit</Button>
         </form>
       </Form>
       <div className="relative">
@@ -91,8 +91,7 @@ export default function SignInForm({ className, ...props }: SignInFormTypes) {
         </div>
       </div>
       <Button onClick={() => oauthSignIn(from)} variant="outline" type="button">
-        (
-        <Icons.gitHub className="mr-2 h-4 w-4" />) GitHub
+        GitHub
       </Button>
     </div>
   );
