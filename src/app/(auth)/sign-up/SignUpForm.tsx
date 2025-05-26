@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 
 import { signUp } from "@/actions/signUp";
 import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
-import ToastWithLink from "@/components/ToastWithLink";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { signUpSchema, SignUpType } from "@/lib/validations";
-import { toast } from "react-toastify";
 
 export default function SignUpForm() {
   const form = useForm<SignUpType>({
@@ -31,29 +29,29 @@ export default function SignUpForm() {
   });
 
   const onSubmit = async (values: SignUpType) => {
-    const result = await signUp(values);
+    await signUp(values);
 
-    if (result.success) {
-      if (result.sent)
-        return toast.success(result.message, { position: "top-center" });
-      else
-        toast.error(<ToastWithLink token={result.token} />, {
-          position: "top-center",
-        });
-    }
+    // if (result.success) {
+    //   if (result.sent)
+    //     return toast.success(result.message, { position: "top-center" });
+    //   else
+    //     toast.error(<ToastWithLink token={result.token} />, {
+    //       position: "top-center",
+    //     });
+    // }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
         <FormField
           control={form.control}
           name="displayName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>DisplayName</FormLabel>
+              <FormLabel>Display Name</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="DisplayName" {...field} />
+                <Input type="text" placeholder="Display Name" {...field} />
               </FormControl>
 
               <FormMessage />
@@ -105,7 +103,9 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="w-full rounded-full">
+          Submit
+        </Button>
       </form>
     </Form>
   );

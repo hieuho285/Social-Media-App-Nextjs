@@ -1,17 +1,14 @@
 "use server";
 
-import { getErrorMessage } from "@/lib/utils";
 import { findUserByEmail } from "@/data-access/user";
 import { UnableToSignInError } from "@/lib/errors";
+import { getErrorMessage } from "@/lib/utils";
 import { signInSchema, SignInType } from "@/lib/validations";
 import { createUserSession } from "@/services/session";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
-export const signIn = async (
-  unsafeData: SignInType,
-  from?: string,
-): Promise<{ error: string }> => {
+export const signIn = async (unsafeData: SignInType, from?: string) => {
   try {
     const { email, password } = signInSchema.parse(unsafeData);
 

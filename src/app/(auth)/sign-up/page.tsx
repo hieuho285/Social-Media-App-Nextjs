@@ -1,19 +1,16 @@
 import { Metadata } from "next";
 import Link from "next/link";
 
-import SignUpForm from "@/components/forms/SignUpForm";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import SignUpForm from "@/app/(auth)/sign-up/SignUpForm";
 
 export const metadata: Metadata = {
-  title: "Authentication",
-  description: "Authentication forms built using the components.",
+  title: "Sign Up",
 };
 
 export default function SignUpPage() {
   return (
-    <div className="relative container flex h-[800px] items-center justify-center">
-      <Link
+    <div className="bg-card rounded-xl p-5 shadow-2xl lg:p-8">
+      {/* <Link
         href="/"
         className={cn(
           buttonVariants({ variant: "ghost" }),
@@ -21,35 +18,27 @@ export default function SignUpPage() {
         )}
       >
         Login
-      </Link>
+      </Link> */}
 
       <div className="lg:p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+        <div className="space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Create an account
+            <h1 className="text-3xl font-bold tracking-tight capitalize">
+              Sign Up
             </h1>
-            <p className="text-muted-foreground text-sm">
-              Enter your email below to create your account
+            <p className="bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 bg-clip-text text-sm text-transparent italic">
+              Sign up and begin your journey with us!
             </p>
           </div>
           <SignUpForm />
           <p className="text-muted-foreground px-8 text-center text-sm">
-            By clicking continue, you agree to our{" "}
+            Already have an account?{" "}
             <Link
-              href="/terms"
-              className="hover:text-primary underline underline-offset-4"
+              href="/sign-in"
+              className="underline font-semibold underline-offset-4 transition hover:text-black"
             >
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy"
-              className="hover:text-primary underline underline-offset-4"
-            >
-              Privacy Policy
+              Sign In
             </Link>
-            .
           </p>
         </div>
       </div>
