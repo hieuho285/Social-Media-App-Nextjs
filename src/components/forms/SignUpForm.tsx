@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { signUp } from "@/actions/auth";
+import { signUp } from "@/actions/signUp";
 import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
 import ToastWithLink from "@/components/ToastWithLink";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signUpSchema, SignUpTypes } from "@/lib/validations";
+import { signUpSchema, SignUpType } from "@/lib/validations";
 import { toast } from "react-toastify";
 
 export default function SignUpForm() {
-  const form = useForm<SignUpTypes>({
+  const form = useForm<SignUpType>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       displayName: "",
@@ -30,7 +30,7 @@ export default function SignUpForm() {
     },
   });
 
-  const onSubmit = async (values: SignUpTypes) => {
+  const onSubmit = async (values: SignUpType) => {
     const result = await signUp(values);
 
     if (result.success) {

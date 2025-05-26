@@ -1,6 +1,7 @@
 "use client";
 
-import { oauthSignIn, signIn } from "@/actions/auth";
+import { signIn } from "@/actions/signIn";
+import { oauthSignIn } from "@/actions/oauthSignIn";
 import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { signInSchema, SignInTypes } from "@/lib/validations";
+import { signInSchema, SignInType } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -22,7 +23,7 @@ export default function SignInForm({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const form = useForm<SignInTypes>({
+  const form = useForm<SignInType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
@@ -33,7 +34,7 @@ export default function SignInForm({
   const from = searchParams.get("from") ?? undefined;
   const oauthError = searchParams.get("oauthError");
 
-  const onSubmit = async (values: SignInTypes) => {
+  const onSubmit = async (values: SignInType) => {
     const result = await signIn(values, from);
 
     if (result?.error) {

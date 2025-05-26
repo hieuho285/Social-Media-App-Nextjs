@@ -22,7 +22,7 @@ export class NoSessionFoundError extends Error {
 
 export class UnableToSignInError extends Error {
   constructor() {
-    super("Unable to Sign In")
+    super("Unable to Sign In");
   }
 }
 
@@ -31,3 +31,10 @@ export class UnsupportedProviderError extends Error {
     super(`Unsupported provider: ${provider}`);
   }
 }
+
+export class UnableToSendMailError extends Error {
+  constructor() {
+    super("Unable to send verification email");
+  }
+}
+

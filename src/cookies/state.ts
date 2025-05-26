@@ -1,4 +1,4 @@
-import { COOKIE_EXPIRE_TIME, COOKIE_OAUTH_STATE_KEY } from "@/constants";
+import { COOKIE_EXPIRE_TIME, COOKIE_OAUTH_STATE_KEY } from "@/lib/constants";
 import { cookies } from "next/headers";
 
 export const setOAuthStateCookie = async (state: string) => {

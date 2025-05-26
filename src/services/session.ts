@@ -2,7 +2,7 @@
 
 import { setUserSessionInCache } from "@/cache/session";
 import { setUserSessionCookie } from "@/cookies/session";
-import { createRandomId } from "@/lib/crypto";
+import { createRandomId } from "@/lib/utils";
 import { userSessionSchema } from "@/zod/schemas";
 import { User } from "@prisma/client";
 

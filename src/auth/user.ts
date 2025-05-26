@@ -1,3 +1,5 @@
+import "server-only";
+
 import { getUserSessionFromCache } from "@/cache/session";
 import { getUserSessionCookie } from "@/cookies/session";
 import { cache } from "react";

@@ -1,8 +1,8 @@
 import { createDiscordOAuthClient } from "@/auth/oauth/external/discord";
 import { createGithubOAuthClient } from "@/auth/oauth/external/github";
 import { getOAuthStateCookie, setOAuthStateCookie } from "@/cookies/state";
-import { createRandomId } from "@/lib/crypto";
 import { InvalidError, UnsupportedProviderError } from "@/lib/errors";
+import { createRandomId } from "@/lib/utils";
 import { discordUserInfoSchema, githubUserInfoSchema } from "@/zod/schemas";
 import { OAuthProvider } from "@prisma/client";
 

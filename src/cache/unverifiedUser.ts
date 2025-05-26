@@ -1,32 +1,44 @@
-import { CACHE_EXPIRE_TIME, CACHE_UNVERIFIED_USER_KEY } from "@/constants";
+import { CACHE_EXPIRE_TIME, CACHE_UNVERIFIED_USER_KEY } from "@/lib/constants";
 import { redisClient } from "@/lib/redis";
-import { unverifiedUserSchema } from "@/zod/schemas";
-import { UnverifiedUserType } from "@/zod/types";
+import {
+  signUpSchemaWithoutConfirm,
+  signUpWithoutConfirmType,
+  userCacheSchema,
+} from "@/lib/validations";
 
-export const getUnverifiedUserInCache = async (token: string) => {
+export const getUnverifiedUserInCache = async (
+  email: string,
+  token: string,
+) => {
   const rawUser = await redisClient.get(
-    `${CACHE_UNVERIFIED_USER_KEY}:${token}`,
+    `${CACHE_UNVERIFIED_USER_KEY}:${email}`,
   );
   if (!rawUser) {
     return null;
   }
 
-  const { success, data } = unverifiedUserSchema.safeParse(rawUser);
+  const { success, data } = userCacheSchema.safeParse(rawUser);
 
-  return success ? data : null;
+  return success && data[token] ? data[token] : null;
 };
 
 export const setUnverifiedUserInCache = async (
   token: string,
-  rawUser: UnverifiedUserType,
+  rawUser: signUpWithoutConfirmType,
 ) => {
-  const user = unverifiedUserSchema.parse(rawUser);
+  const user = signUpSchemaWithoutConfirm.parse(rawUser);
 
-  await redisClient.set(`${CACHE_UNVERIFIED_USER_KEY}:${token}`, user, {
-    ex: CACHE_EXPIRE_TIME,
-  });
+  const existingUser = await getUnverifiedUserInCache(user.email, token);
+
+  await redisClient.set(
+    `${CACHE_UNVERIFIED_USER_KEY}:${user.email}`,
+    { ...existingUser, [token]: { ...user } },
+    {
+      ex: CACHE_EXPIRE_TIME,
+    },
+  );
 };
 
-export const deleteUnverifiedUserInCache = async (token: string) => {
-  await redisClient.del(`${CACHE_UNVERIFIED_USER_KEY}:${token}`);
+export const deleteUnverifiedUserInCache = async (email: string) => {
+  await redisClient.del(`${CACHE_UNVERIFIED_USER_KEY}:${email}`);
 };

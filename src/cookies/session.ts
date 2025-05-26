@@ -1,4 +1,4 @@
-import { COOKIE_USER_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/constants";
+import { COOKIE_USER_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/lib/constants";
 import { cookies } from "next/headers";
 
 export const getUserSessionCookie = async () => {

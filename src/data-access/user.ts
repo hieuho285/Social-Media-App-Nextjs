@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
-import { SignUpType } from "@/zod/types";
+import { SignUpType } from "@/lib/validations";
 
 export const findUserByEmail = async (email: string) => {
   const user = await prisma.user.findUnique({
     where: {
-      email,
+      email: email.toLowerCase(),
     },
   });
 
@@ -12,13 +12,13 @@ export const findUserByEmail = async (email: string) => {
 };
 
 export const createUser = async ({
-  username,
+  displayName,
   password,
   email,
 }: Omit<SignUpType, "confirmPassword">) => {
   const user = await prisma.user.create({
     data: {
-      username,
+      displayName,
       password,
       email,
     },
