@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
   subsets: ["latin"],
 });
 
@@ -26,11 +20,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  console.log(inter.className);
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} overscroll-none antialiased`}
-      >
+      <body className={`${inter.className} overscroll-none bg-gray-100 antialiased`}>
         <ToastContainer stacked />
         {children}
       </body>

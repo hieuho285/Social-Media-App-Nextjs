@@ -8,9 +8,9 @@ const adminRoutes = ["/admin"];
 const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 export async function middleware(request: NextRequest) {
-  const response = await middlewareAuth(request);
+  // const response = await middlewareAuth(request);
   await updateSessionExpiration();
-  return response;
+  // return response;
 }
 
 async function middlewareAuth(request: NextRequest) {
