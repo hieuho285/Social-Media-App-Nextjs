@@ -25,8 +25,8 @@ export const sendUserVerificationMail = async ({
       from: env.SMTP_SERVER_USERNAME,
       to: sendTo,
       subject: "Verify Your Account",
-      html: `Please click <a href="${env.BASE_URL}/verify-user?token=${token}">here</a> to verify your account.`,
-      text: `Please verify your account by visiting: ${env.BASE_URL}/verify-user/${token}`,
+      html: `Please click <a href="${env.NEXT_PUBLIC_APP_URL}/verify-user?token=${token}">here</a> to verify your account.`,
+      text: `Please verify your account by visiting: ${env.NEXT_PUBLIC_APP_URL}/verify-user/${token}`,
     });
   } catch {
     throw new UnableToSendMailError();

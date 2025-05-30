@@ -1,4 +1,4 @@
-import SearchInput from "@/app/(home)/components/search-input";
+import SearchInput from "@/app/(home)/components/navbar/search-input";
 import AuthButton from "@/components/auth-button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";

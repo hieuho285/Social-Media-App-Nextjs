@@ -49,3 +49,11 @@ model UserOAuthAccount {
 
   @@unique([providerAccountId, provider])
 }
+
+model Category {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

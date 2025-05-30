@@ -23,7 +23,7 @@ export default function RootLayout({
   console.log(inter.className);
   return (
     <html lang="en">
-      <body className={`${inter.className} overscroll-none bg-gray-100 antialiased`}>
+      <body className={`${inter.className} overscroll-none antialiased`}>
         <ToastContainer stacked />
         {children}
       </body>

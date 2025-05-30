@@ -13,7 +13,7 @@ export const envSchema = z.object({
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
 
-  BASE_URL: z.string(),
+  NEXT_PUBLIC_APP_URL: z.string(),
 
   SMTP_SERVER_USERNAME: z.string(),
   SMTP_SERVER_PASSWORD: z.string(),

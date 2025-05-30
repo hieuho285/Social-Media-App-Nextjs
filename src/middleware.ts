@@ -26,13 +26,13 @@ async function middlewareAuth(request: NextRequest) {
       request.nextUrl.pathname + request.nextUrl.search,
     );
     return NextResponse.redirect(
-      new URL(`/sign-in?from=${from}`, env.BASE_URL),
+      new URL(`/sign-in?from=${from}`, env.NEXT_PUBLIC_APP_URL),
     );
   }
 
   if (adminRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
     if (!isAuthenticated || !isAdmin) {
-      return NextResponse.redirect(new URL("/403", env.BASE_URL));
+      return NextResponse.redirect(new URL("/403", env.NEXT_PUBLIC_APP_URL));
     }
   }
 
@@ -41,7 +41,7 @@ async function middlewareAuth(request: NextRequest) {
       const from = request.nextUrl.searchParams.get("from");
 
       return NextResponse.redirect(
-        new URL(from ? decodeURIComponent(from) : "/", env.BASE_URL),
+        new URL(from ? decodeURIComponent(from) : "/", env.NEXT_PUBLIC_APP_URL),
       );
     }
   }
