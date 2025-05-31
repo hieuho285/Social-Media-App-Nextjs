@@ -41,16 +41,12 @@ export default function CategoriesSection({ categories, categoryId }: props) {
     });
   }, [api, categories.length]);
 
-  // const onSelect = (value?: string) => {
-  //   const url = new URL(window.location.href);
-  //   if (value) url.searchParams.set("categoryId", value);
-  //   else url.searchParams.delete("categoryId");
-
-  //   router.push(url.toString());
-  // };
-
   return (
-    <Carousel setApi={setApi} className="w-full px-10">
+    <Carousel
+      opts={{ dragFree: true }}
+      setApi={setApi}
+      className="w-full px-10"
+    >
       <CarouselContent className="-ml-1">
         <CarouselItem className="basis-auto pr-3 pl-1">
           <Badge

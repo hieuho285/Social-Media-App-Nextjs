@@ -7,8 +7,9 @@ import { cache } from "react";
 export const getCurrentUser = cache(async () => {
   const sessionId = await getUserSessionCookie();
   if (!sessionId) return null;
-  const user = await getUserSessionFromCache(sessionId);
-  if (!user) return null;
 
-  return { ...user, sessionId };
+  const cachedUser = await getUserSessionFromCache(sessionId);
+  if (!cachedUser) return null;
+
+  return { ...cachedUser, sessionId };
 });

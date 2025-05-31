@@ -36,3 +36,10 @@ export const getErrorMessage = (error: unknown) => {
 
   return message;
 };
+
+export const getInitialsFromName = (name: string) => {
+  const nameArr = name.split(" ");
+  const firstInitial = nameArr[0]?.at(0) ?? "";
+  const lastInitial = nameArr[nameArr.length - 1]?.at(0) ?? "";
+  return firstInitial + lastInitial;
+};

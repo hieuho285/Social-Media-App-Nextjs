@@ -17,14 +17,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  auth,
 }: Readonly<{
   children: React.ReactNode;
+  auth: React.ReactNode;
 }>) {
-  console.log(inter.className);
   return (
     <html lang="en">
       <body className={`${inter.className} overscroll-none antialiased`}>
         <ToastContainer stacked />
+        <div>{auth}</div>
         {children}
       </body>
     </html>
