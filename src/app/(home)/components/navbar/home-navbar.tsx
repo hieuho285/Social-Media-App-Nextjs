@@ -1,5 +1,5 @@
+import AuthButton from "@/app/(home)/components/navbar/auth-button";
 import SearchInput from "@/app/(home)/components/navbar/search-input";
-import AuthButton from "@/components/auth-button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 import Link from "next/link";

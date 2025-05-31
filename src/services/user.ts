@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 export const connectUserToAccount = async (
   id: string,
   email: string,
-  username: string,
+  name: string,
 ) => {
   try {
     return await prisma.user.upsert({
@@ -13,7 +13,7 @@ export const connectUserToAccount = async (
       update: {},
       create: {
         email,
-        username,
+        name,
         accounts: {
           connectOrCreate: {
             where: {

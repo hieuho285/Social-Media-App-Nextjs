@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
 import { SignUpType } from "@/lib/validations";
 
-export const findUserByEmail = async (email: string) => {
+export const findUserById = async (id: string) => {
   const user = await prisma.user.findUnique({
     where: {
-      email: email.toLowerCase(),
+      id,
     },
   });
 

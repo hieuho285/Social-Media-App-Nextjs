@@ -1,12 +1,13 @@
 "use server";
 
-import { getErrorMessage } from "@/lib/utils";
 import { getOAuthClient } from "@/auth/oauth/helpers";
+import { getErrorMessage } from "@/lib/utils";
+import { OAuthProvider } from "@prisma/client";
 import { redirect } from "next/navigation";
 
-export const oauthSignIn = async (from?: string) => {
+export const oauthSignIn = async (provider: OAuthProvider, from?: string) => {
   try {
-    const oauthClient = getOAuthClient("discord");
+    const oauthClient = getOAuthClient(provider);
     const authorizationUrl = await oauthClient.createAuthorizationUrl(from);
 
     redirect(authorizationUrl);

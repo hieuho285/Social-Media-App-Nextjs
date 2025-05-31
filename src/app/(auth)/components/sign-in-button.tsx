@@ -5,13 +5,16 @@ import { UserCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-export default function SignInButton() {
+type SignInButtonProps = {
+  variant?: "button" | "p";
+};
+
+export default function SignInButton({
+  variant = "button",
+}: SignInButtonProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const newParams = new URLSearchParams();
-  if (pathname !== "/") {
-    newParams.set("from", pathname);
-  }
 
   if (searchParams.toString() !== "") {
     for (const [key, value] of searchParams.entries()) {
@@ -19,7 +22,25 @@ export default function SignInButton() {
     }
   }
 
-  console.log(!!newParams.toString());
+  if (variant === "p") {
+    return (
+      <p className="text-muted-foreground px-8 text-center text-sm">
+        Don&apos;t have an account?{" "}
+        <Link
+          replace
+          href={`/sign-up${!!newParams.toString() ? `?${newParams.toString()}` : ""}`}
+          className="font-semibold underline underline-offset-4 transition hover:text-black"
+        >
+          Sign Up
+        </Link>
+      </p>
+    );
+  }
+
+  if (pathname !== "/") {
+    newParams.set("from", pathname);
+  }
+
   return (
     <Button
       asChild

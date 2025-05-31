@@ -35,7 +35,7 @@ export default function FormPasswordInputWithToggle({
       />
       <Button
         type="button"
-        className="absolute top-0 right-0 bg-transparent text-black"
+        className="absolute top-0 right-0 cursor-pointer bg-transparent text-black"
         onClick={() => setShow(!show)}
       >
         {show ? <Eye /> : <EyeOff />}

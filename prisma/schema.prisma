@@ -30,13 +30,13 @@ model User {
   role      UserRole @default(USER)
   avatarUrl String?
 
-  accounts UserOAuthAccount[]
+  accounts OAuthAccount[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model UserOAuthAccount {
+model OAuthAccount {
   id                String        @id @default(auto()) @map("_id") @db.ObjectId
   provider          OAuthProvider
   providerAccountId String        @unique

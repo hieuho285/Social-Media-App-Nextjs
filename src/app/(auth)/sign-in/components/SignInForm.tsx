@@ -1,8 +1,9 @@
 "use client";
 
 import { signIn } from "@/actions/signIn";
-import { oauthSignIn } from "@/actions/oauthSignIn";
-import FormPasswordInputWithToggle from "@/components/forms/FormPasswordInputWithToggle";
+import OAuthLogin from "@/app/(auth)/components/oauth-buttons";
+import FormPasswordInputWithToggle from "@/app/(auth)/components/password-toggler";
+import SignInButton from "@/app/(auth)/components/sign-in-button";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,16 +14,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { signInSchema, SignInType } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-export default function SignInForm({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export default function SignInForm() {
   const form = useForm<SignInType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -42,7 +39,7 @@ export default function SignInForm({
   };
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
+    <div className="space-y-6">
       {oauthError && <div>{oauthError}</div>}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -77,7 +74,7 @@ export default function SignInForm({
           />
 
           <Button
-            className="w-full bg-blue-700 hover:bg-blue-600"
+            className="w-full cursor-pointer bg-blue-700 hover:bg-blue-600"
             type="submit"
           >
             Submit
@@ -94,9 +91,8 @@ export default function SignInForm({
           </span>
         </div>
       </div>
-      <Button onClick={() => oauthSignIn(from)} variant="outline" type="button">
-        GitHub
-      </Button>
+      <OAuthLogin from={from} />
+      <SignInButton variant="p" />
     </div>
   );
 }
