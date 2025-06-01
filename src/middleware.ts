@@ -1,5 +1,3 @@
-import { getCurrentUser } from "@/auth/user";
-import { updateSessionExpiration } from "@/cache/session";
 import { env } from "@/lib/env";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,12 +7,13 @@ const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 export async function middleware(request: NextRequest) {
   // const response = await middlewareAuth(request);
-  await updateSessionExpiration();
+  // await updateSessionExpiration();
   // return response;
 }
 
 async function middlewareAuth(request: NextRequest) {
-  const user = await getCurrentUser();
+  // const user = await getCurrentUser();
+  const user = null;
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "ADMIN";
 

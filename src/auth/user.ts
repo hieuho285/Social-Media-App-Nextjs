@@ -1,7 +1,8 @@
-import "server-only";
+"use server";
 
 import { getUserSessionFromCache } from "@/cache/session";
 import { getUserSessionCookie } from "@/cookies/session";
+import { findUserById } from "@/data-access/user";
 import { cache } from "react";
 
 export const getCurrentUser = cache(async () => {
@@ -11,5 +12,8 @@ export const getCurrentUser = cache(async () => {
   const cachedUser = await getUserSessionFromCache(sessionId);
   if (!cachedUser) return null;
 
-  return { ...cachedUser, sessionId };
+  const user = await findUserById(cachedUser.id, { omit: { password: true } });
+  if (!user) return null;
+
+  return { ...user, sessionId };
 });

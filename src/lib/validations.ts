@@ -12,7 +12,7 @@ export type SignInType = z.infer<typeof signInSchema>;
 
 // Sign up schema and type
 const signUpBaseSchema = z.object({
-  displayName: requiredStr.regex(
+  name: requiredStr.regex(
     /^[a-zA-Z0-9 ]+$/,
     "Only letters, numbers, and spaces allowed",
   ),
