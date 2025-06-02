@@ -1,19 +1,9 @@
-"use server";
-
 import { env } from "@/lib/env";
-import { UnableToSendMailError } from "@/lib/errors";
-import nodemailer from "nodemailer";
+import { UnableToSendMailError } from "@/lib/error";
+import { transporter } from "@/services/mail/helpers";
+import "server-only";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  secure: true,
-  auth: {
-    user: env.SMTP_SERVER_USERNAME,
-    pass: env.SMTP_SERVER_PASSWORD,
-  },
-});
-
-export const sendUserVerificationMail = async ({
+export const sendVerificationMail = async ({
   sendTo,
   token,
 }: {
@@ -28,7 +18,8 @@ export const sendUserVerificationMail = async ({
       html: `Please click <a href="${env.NEXT_PUBLIC_APP_URL}/verify-user?token=${token}">here</a> to verify your account.`,
       text: `Please verify your account by visiting: ${env.NEXT_PUBLIC_APP_URL}/verify-user/${token}`,
     });
-  } catch {
+  } catch (error) {
+    console.error("Failed to send verification email:", error);
     throw new UnableToSendMailError();
   }
 };

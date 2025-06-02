@@ -1,10 +1,10 @@
 "use server";
 
-import { findUserByEmail } from "@/data-access/user";
-import { UnableToSignInError } from "@/lib/errors";
+import { findUserByEmail } from "@/data-access-layer/user";
+import { UnableToSignInError } from "@/lib/error";
 import { getErrorMessage } from "@/lib/utils";
 import { signInSchema, SignInType } from "@/lib/validations";
-import { createUserSession } from "@/services/session";
+import { createUserSession } from "@/services/session/session";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
@@ -31,7 +31,6 @@ export const signIn = async (unsafeData: SignInType, from?: string) => {
 
     redirect(from ?? "/");
   } catch (error) {
-    console.error("Error during sign-in:", error);
     return {
       error: getErrorMessage(error),
     };

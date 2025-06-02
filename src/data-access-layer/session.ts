@@ -1,8 +1,7 @@
-import { getCurrentUser } from "@/auth/user";
 import { CACHE_USER_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/lib/constants";
 import { redisClient } from "@/lib/redis";
-import { userSessionSchema } from "@/zod/schemas";
-import { UserSessionType } from "@/zod/types";
+import { userSessionSchema, UserSessionType } from "@/lib/validations";
+import { getCurrentUser } from "@/services/session/session";
 import "server-only";
 
 export const getUserSessionFromCache = async (sessionId: string) => {

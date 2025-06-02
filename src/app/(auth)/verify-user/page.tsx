@@ -1,8 +1,8 @@
 import {
   deleteUnverifiedUserInCache,
   getUnverifiedUserInCache,
-} from "@/cache/unverifiedUser";
-import { createUser } from "@/data-access/user";
+} from "@/data-access-layer/unverifiedUser";
+import { createUser } from "@/data-access-layer/user";
 
 export default async function VerifyUserPage({
   searchParams,

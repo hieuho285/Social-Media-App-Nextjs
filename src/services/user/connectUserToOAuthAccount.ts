@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
+import "server-only";
 
-export const connectUserToAccount = async (
+export const connectUserToOAuthAccount = async (
   id: string,
   email: string,
   name: string,

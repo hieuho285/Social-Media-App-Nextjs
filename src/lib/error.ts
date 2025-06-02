@@ -1,3 +1,4 @@
+import "server-only";
 import { z } from "zod";
 
 export class InvalidError extends Error {
@@ -37,4 +38,3 @@ export class UnableToSendMailError extends Error {
     super("Unable to send verification email");
   }
 }
-

@@ -1,5 +1,5 @@
 import CategoriesSection from "@/app/(home)/@categories/components/categories-section";
-import { getCategories } from "@/data-access/category";
+import { getCategories } from "@/data-access-layer/category";
 
 type HomePageProps = {
   searchParams: Promise<{

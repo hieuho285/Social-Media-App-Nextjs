@@ -1,6 +1,9 @@
+import { env } from "@/lib/env";
+import { UnverifiedUserType } from "@/lib/validations";
 import { Prisma } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
@@ -42,4 +45,12 @@ export const getInitialsFromName = (name: string) => {
   const firstInitial = nameArr[0]?.at(0) ?? "";
   const lastInitial = nameArr[nameArr.length - 1]?.at(0) ?? "";
   return firstInitial + lastInitial;
+};
+
+export const jwtUserSign = (payload: UnverifiedUserType) => {
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1h" });
+};
+
+export const jwtUserVerify = (token: string) => {
+  return jwt.verify(token, env.JWT_SECRET);
 };

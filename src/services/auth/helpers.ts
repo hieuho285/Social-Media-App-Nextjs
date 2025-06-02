@@ -1,10 +1,11 @@
-import { createDiscordOAuthClient } from "@/auth/oauth/external/discord";
-import { createGithubOAuthClient } from "@/auth/oauth/external/github";
-import { getOAuthStateCookie, setOAuthStateCookie } from "@/cookies/state";
-import { InvalidError, UnsupportedProviderError } from "@/lib/errors";
+import { InvalidError, UnsupportedProviderError } from "@/lib/error";
 import { createRandomId } from "@/lib/utils";
-import { discordUserInfoSchema, githubUserInfoSchema } from "@/zod/schemas";
+import {
+  getOAuthStateCookie,
+  setOAuthStateCookie,
+} from "@/services/auth/cookies";
 import { OAuthProvider } from "@prisma/client";
+import { z } from "zod";
 
 export const createOAuthState = async (from?: string) => {
   const id = createRandomId();
@@ -25,23 +26,19 @@ export const validateOAuthState = async (state: string) => {
   return stateCookie === state;
 };
 
-export const getOAuthClient = (provider: OAuthProvider) => {
-  switch (provider) {
-    case "discord":
-      return createDiscordOAuthClient();
-    case "github":
-      return createGithubOAuthClient();
-    default:
-      throw new UnsupportedProviderError(provider);
-  }
-};
-
 export const validateOAuthUserInfo = (
   rawData: unknown,
   provider: OAuthProvider,
 ) => {
   if (provider === "discord") {
-    const { data, success, error } = discordUserInfoSchema.safeParse(rawData);
+    const { data, success, error } = z
+      .object({
+        id: z.string(),
+        username: z.string(),
+        global_name: z.string().nullable(),
+        email: z.string().email(),
+      })
+      .safeParse(rawData);
 
     if (!success) {
       throw new InvalidError("OAuth User", error);
@@ -53,7 +50,14 @@ export const validateOAuthUserInfo = (
       username: data.global_name ?? data.username,
     };
   } else if (provider === "github") {
-    const { data, success, error } = githubUserInfoSchema.safeParse(rawData);
+    const { data, success, error } = z
+      .object({
+        id: z.string(),
+        login: z.string(),
+        name: z.string().nullable(),
+        email: z.string().email(),
+      })
+      .safeParse(rawData);
 
     if (!success) {
       throw new InvalidError("OAuth User", error);

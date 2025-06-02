@@ -24,7 +24,7 @@ export default function SignUpForm() {
   const form = useForm<SignUpType>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      displayName: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -53,7 +53,7 @@ export default function SignUpForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7">
           <FormField
             control={form.control}
-            name="displayName"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Display Name</FormLabel>

@@ -1,7 +1,7 @@
 import AuthButton from "@/app/(studio)/components/navbar/auth-button";
-import { getCurrentUser } from "@/auth/user";
 import { ModeToggle } from "@/components/theme-toggler";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { getCurrentUser } from "@/services/session/session";
 import {
   dehydrate,
   HydrationBoundary,

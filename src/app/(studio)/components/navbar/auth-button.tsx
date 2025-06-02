@@ -1,7 +1,6 @@
 "use client";
 
 import SignInButton from "@/app/(auth)/components/sign-in-button";
-import { getCurrentUser } from "@/auth/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getInitialsFromName } from "@/lib/utils";
+import { getCurrentUser } from "@/services/session/session";
 import { useQuery } from "@tanstack/react-query";
 import { ClapperboardIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";

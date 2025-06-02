@@ -1,24 +1,21 @@
 "use server";
 
-import { getUnverifiedUserInCache } from "@/cache/unverifiedUser";
-import { sendUserVerificationMail } from "@/lib/sendMail";
+import { getErrorMessage, jwtUserSign, jwtUserVerify } from "@/lib/utils";
+import { unverifiedUserSchema } from "@/lib/validations";
+import { sendVerificationMail } from "@/services/mail/sendMail";
 
-export const resendUserVerificationMail = async (token: string) => {
-  const unverifiedUser = await getUnverifiedUserInCache(token);
-
-  if (!unverifiedUser) throw new Error("Unable to resend verification mail.");
+export const resendVerificationMail = async (token: string) => {
   try {
-    await sendUserVerificationMail({ sendTo: unverifiedUser.email, token });
+    const decoded = jwtUserVerify(token);
+
+    const user = unverifiedUserSchema.parse(decoded);
+
+    const newToken = jwtUserSign(user);
+
+    await sendVerificationMail({ sendTo: user.email, token: newToken });
+  } catch (error) {
     return {
-      success: true,
-      sent: true,
-      message: "Verification email has been sent to your email." as string,
-    } as const;
-  } catch {
-    return {
-      success: true,
-      sent: false,
-      token,
-    } as const;
+      error: getErrorMessage(error),
+    };
   }
 };

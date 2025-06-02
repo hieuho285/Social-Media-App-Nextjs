@@ -1,3 +1,4 @@
+import { OAuthProvider, UserRole } from "@prisma/client";
 import { z } from "zod";
 
 const requiredStr = z.string().trim().min(1, "Required");
@@ -10,22 +11,20 @@ export const signInSchema = z.object({
 
 export type SignInType = z.infer<typeof signInSchema>;
 
-// Sign up schema and type
-const signUpBaseSchema = z.object({
-  name: requiredStr.regex(
-    /^[a-zA-Z0-9 ]+$/,
-    "Only letters, numbers, and spaces allowed",
-  ),
-  email: requiredStr.email("Invalid Email Address").toLowerCase(),
-  password: requiredStr.regex(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d@$!%*?&]{8,20}$/,
-    "8–20 characters. Must include uppercase, lowercase, number, and special character @$!%*?&",
-  ),
-  confirmPassword: requiredStr,
-});
-
-export const signUpSchema = signUpBaseSchema.superRefine(
-  ({ confirmPassword, password }, ctx) => {
+export const signUpSchema = z
+  .object({
+    name: requiredStr.regex(
+      /^[a-zA-Z0-9 ]+$/,
+      "Only letters, numbers, and spaces allowed",
+    ),
+    email: requiredStr.email("Invalid Email Address").toLowerCase(),
+    password: requiredStr.regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d@$!%*?&]{8,20}$/,
+      "8–20 characters. Must include uppercase, lowercase, number, and special character @$!%*?&",
+    ),
+    confirmPassword: requiredStr,
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {
       ctx.addIssue({
         code: "custom",
@@ -33,15 +32,27 @@ export const signUpSchema = signUpBaseSchema.superRefine(
         path: ["confirmPassword"],
       });
     }
-  },
-);
-
-export const signUpSchemaWithoutConfirm = signUpBaseSchema.omit({
-  confirmPassword: true,
-});
-
-export type signUpWithoutConfirmType = Omit<SignUpType, "confirmPassword">;
+  });
 
 export type SignUpType = z.infer<typeof signUpSchema>;
+export const oauthProviderSchema = z.nativeEnum(OAuthProvider);
 
-export const userCacheSchema = z.record(z.string(), signUpSchemaWithoutConfirm);
+export const oauthStateSchema = z.object({
+  id: z.string(),
+  from: z.string().optional(),
+});
+
+export const userSessionSchema = z.object({
+  id: requiredStr,
+  role: z.nativeEnum(UserRole),
+});
+
+export type UserSessionType = z.infer<typeof userSessionSchema>;
+
+export const unverifiedUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+  name: z.string(),
+});
+
+export type UnverifiedUserType = z.infer<typeof unverifiedUserSchema>;

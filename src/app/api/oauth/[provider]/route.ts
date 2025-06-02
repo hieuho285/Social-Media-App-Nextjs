@@ -1,6 +1,6 @@
 import { getOAuthClient } from "@/auth/oauth/helpers";
-import { createUserSession } from "@/services/session";
-import { connectUserToAccount } from "@/services/user";
+import { createUserSession } from "@/services/session/session";
+import { connectUserToAccount } from "@/services/user/connectUserToOAuthAccount";
 import { oauthProviderSchema, oauthStateSchema } from "@/zod/schemas/";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";

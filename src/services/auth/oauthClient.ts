@@ -1,20 +1,26 @@
+import { env } from "@/lib/env";
+import { InvalidError, UnsupportedProviderError } from "@/lib/error";
 import {
   createOAuthState,
   validateOAuthState,
   validateOAuthUserInfo,
-} from "@/auth/oauth/helpers";
-import { env } from "@/lib/env";
-import { InvalidError } from "@/lib/errors";
-import { oauthTokenSchema } from "@/zod/schemas";
+} from "@/services/auth/helpers";
 import { OAuthProvider } from "@prisma/client";
+import "server-only";
+import { z } from "zod";
 
-type OAuthConstructorType = {
+type OAuthConstructorProps = {
   provider: OAuthProvider;
   clientId: string;
   clientSecret: string;
   scopes: string[];
   urls: { authorization: string; token: string; user: string };
 };
+
+const tokenSchema = z.object({
+  access_token: z.string(),
+  token_type: z.string(),
+});
 
 export class OAuthClient {
   private readonly provider: OAuthProvider;
@@ -30,7 +36,7 @@ export class OAuthClient {
     clientSecret,
     scopes,
     urls,
-  }: OAuthConstructorType) {
+  }: OAuthConstructorProps) {
     this.provider = provider;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -49,6 +55,7 @@ export class OAuthClient {
 
     url.searchParams.set("client_id", this.clientId);
     url.searchParams.set("redirect_uri", this.redirectUrl);
+
     url.searchParams.set("response_type", "code");
     url.searchParams.set("scope", this.scopes.join(" "));
     url.searchParams.set("state", state);
@@ -76,7 +83,7 @@ export class OAuthClient {
     }
 
     const rawData = await response.json();
-    const { data, success, error } = oauthTokenSchema.safeParse(rawData);
+    const { data, success, error } = tokenSchema.safeParse(rawData);
 
     if (!success) {
       throw new InvalidError("OAuth Token", error);
@@ -113,3 +120,34 @@ export class OAuthClient {
     return user;
   }
 }
+
+export const getOAuthClient = (provider: OAuthProvider) => {
+  switch (provider) {
+    case "discord":
+      return new OAuthClient({
+        provider: "discord",
+        clientId: env.DISCORD_CLIENT_ID,
+        clientSecret: env.DISCORD_CLIENT_SECRET,
+        scopes: ["identify", "email"],
+        urls: {
+          authorization: "https://discord.com/api/oauth2/authorize",
+          token: "https://discord.com/api/oauth2/token",
+          user: "https://discord.com/api/users/@me",
+        },
+      });
+    case "github":
+      return new OAuthClient({
+        provider: "discord",
+        clientId: env.GITHUB_CLIENT_ID,
+        clientSecret: env.GITHUB_CLIENT_SECRET,
+        scopes: ["user:email", "read:user"],
+        urls: {
+          authorization: "https://github.com/login/oauth/authorize",
+          token: "https://github.com/login/oauth/access_token",
+          user: "https://api.github.com/user",
+        },
+      });
+    default:
+      throw new UnsupportedProviderError(provider);
+  }
+};
