@@ -1,10 +1,10 @@
 "use server";
 
 import { findUserByEmail } from "@/data-access-layer/user";
-import { getErrorMessage, jwtUserSign } from "@/lib/utils";
+import { getErrorMessage, hashPassword } from "@/lib/utils";
 import { signUpSchema, SignUpType } from "@/lib/validations";
+import { jwtUserSign } from "@/services/jwt";
 import { sendVerificationMail } from "@/services/mail/sendMail";
-import bcrypt from "bcryptjs";
 
 export const signUp = async (unsafeData: SignUpType) => {
   try {
@@ -14,7 +14,7 @@ export const signUp = async (unsafeData: SignUpType) => {
     if (existingUser && existingUser.password)
       throw new Error("User already exists");
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     const token = jwtUserSign({ email, password: hashedPassword, name });
 

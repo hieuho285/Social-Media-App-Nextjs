@@ -1,4 +1,4 @@
-import SignInButton from "@/app/(auth)/components/sign-in-button";
+import SignInButton from "@/app/(home)/components/navbar/sign-in-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,

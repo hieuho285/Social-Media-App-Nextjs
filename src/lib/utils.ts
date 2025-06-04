@@ -1,9 +1,9 @@
 import { env } from "@/lib/env";
-import { UnverifiedUserType } from "@/lib/validations";
-import { Prisma } from "@prisma/client";
+import { OAuthProvider, Prisma } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { clsx, type ClassValue } from "clsx";
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
@@ -47,10 +47,18 @@ export const getInitialsFromName = (name: string) => {
   return firstInitial + lastInitial;
 };
 
-export const jwtUserSign = (payload: UnverifiedUserType) => {
+export const jwtSign = (payload: JwtPayload) => {
   return jwt.sign(payload, env.JWT_SECRET, { expiresIn: "1h" });
 };
 
-export const jwtUserVerify = (token: string) => {
+export const jwtVerify = (token: string) => {
   return jwt.verify(token, env.JWT_SECRET);
+};
+
+export const hashPassword = (password: string) => {
+  return bcrypt.hash(password, 10);
+};
+
+export const isOAuthProvider = (value: string): value is OAuthProvider => {
+  return Object.values(OAuthProvider).includes(value as OAuthProvider);
 };

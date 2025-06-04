@@ -1,4 +1,4 @@
-import { OAuthProvider, UserRole } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 import { z } from "zod";
 
 const requiredStr = z.string().trim().min(1, "Required");
@@ -8,7 +8,6 @@ export const signInSchema = z.object({
   email: requiredStr.email("Invalid Email Address").toLowerCase(),
   password: requiredStr,
 });
-
 export type SignInType = z.infer<typeof signInSchema>;
 
 export const signUpSchema = z
@@ -33,20 +32,17 @@ export const signUpSchema = z
       });
     }
   });
-
 export type SignUpType = z.infer<typeof signUpSchema>;
-export const oauthProviderSchema = z.nativeEnum(OAuthProvider);
 
 export const oauthStateSchema = z.object({
-  id: z.string(),
-  from: z.string().optional(),
+  from: z.string().nullable(),
 });
+export type OAuthStateType = z.infer<typeof oauthStateSchema>;
 
 export const userSessionSchema = z.object({
   id: requiredStr,
   role: z.nativeEnum(UserRole),
 });
-
 export type UserSessionType = z.infer<typeof userSessionSchema>;
 
 export const unverifiedUserSchema = z.object({
@@ -54,5 +50,44 @@ export const unverifiedUserSchema = z.object({
   password: z.string(),
   name: z.string(),
 });
-
 export type UnverifiedUserType = z.infer<typeof unverifiedUserSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    password: requiredStr,
+    confirmPassword: requiredStr,
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Passwords don't match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+export type ResetPasswordType = z.infer<typeof resetPasswordSchema>;
+
+export const forgotPasswordSchema = z.object({
+  email: requiredStr.email("Invalid Email Address"),
+});
+export type ForgotPasswordType = z.infer<typeof forgotPasswordSchema>;
+
+export const discordUserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  global_name: z.string().nullable(),
+  email: z.string().email(),
+});
+
+export const githubUserSchema = z.object({
+  id: z.string(),
+  login: z.string(),
+  name: z.string().nullable(),
+  email: z.string().email(),
+});
+
+export const oauthTokenSchema = z.object({
+  access_token: z.string(),
+  token_type: z.string(),
+});

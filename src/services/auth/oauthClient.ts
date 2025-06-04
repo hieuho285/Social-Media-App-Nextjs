@@ -1,13 +1,13 @@
 import { env } from "@/lib/env";
-import { InvalidError, UnsupportedProviderError } from "@/lib/error";
+import { UnsupportedProviderError } from "@/lib/error";
 import {
-  createOAuthState,
-  validateOAuthState,
-  validateOAuthUserInfo,
-} from "@/services/auth/helpers";
+  discordUserSchema,
+  githubUserSchema,
+  oauthTokenSchema,
+} from "@/lib/validations";
+import { jwtOAuthStateSign, jwtOAuthStateVerify } from "@/services/jwt";
 import { OAuthProvider } from "@prisma/client";
 import "server-only";
-import { z } from "zod";
 
 type OAuthConstructorProps = {
   provider: OAuthProvider;
@@ -16,11 +16,6 @@ type OAuthConstructorProps = {
   scopes: string[];
   urls: { authorization: string; token: string; user: string };
 };
-
-const tokenSchema = z.object({
-  access_token: z.string(),
-  token_type: z.string(),
-});
 
 export class OAuthClient {
   private readonly provider: OAuthProvider;
@@ -49,8 +44,7 @@ export class OAuthClient {
     return url.toString();
   }
 
-  async createAuthorizationUrl(from?: string) {
-    const state = await createOAuthState(from);
+  createAuthorizationUrl(from: string | null = null) {
     const url = new URL(this.urls.authorization);
 
     url.searchParams.set("client_id", this.clientId);
@@ -58,7 +52,7 @@ export class OAuthClient {
 
     url.searchParams.set("response_type", "code");
     url.searchParams.set("scope", this.scopes.join(" "));
-    url.searchParams.set("state", state);
+    url.searchParams.set("state", jwtOAuthStateSign({ from }));
 
     return url.toString();
   }
@@ -83,24 +77,16 @@ export class OAuthClient {
     }
 
     const rawData = await response.json();
-    const { data, success, error } = tokenSchema.safeParse(rawData);
-
-    if (!success) {
-      throw new InvalidError("OAuth Token", error);
-    }
+    const { access_token, token_type } = oauthTokenSchema.parse(rawData);
 
     return {
-      accessToken: data.access_token,
-      tokenType: data.token_type,
+      accessToken: access_token,
+      tokenType: token_type,
     };
   }
 
   async fetchUser(code: string, state: string) {
-    const isValidState = await validateOAuthState(state);
-
-    if (!isValidState) {
-      throw new InvalidError("State");
-    }
+    jwtOAuthStateVerify(state);
 
     const { accessToken, tokenType } = await this.fetchToken(code);
 
@@ -114,10 +100,25 @@ export class OAuthClient {
       throw new Error("Failed to fetch user");
     }
 
-    const rawData = await response.json();
-    const user = validateOAuthUserInfo(rawData, this.provider);
+    const data = await response.json();
 
-    return user;
+    if (this.provider === "discord") {
+      const user = discordUserSchema.parse(data);
+      return {
+        email: user.email,
+        id: user.id,
+        name: user.global_name ?? user.name,
+      };
+    } else if (this.provider === "github") {
+      const user = githubUserSchema.parse(data);
+      return {
+        email: user.email,
+        id: user.id,
+        name: user.name ?? user.login,
+      };
+    } else {
+      throw new UnsupportedProviderError(this.provider);
+    }
   }
 }
 

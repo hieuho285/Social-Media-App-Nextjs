@@ -1,6 +1,6 @@
 "use client";
 
-import SignUpForm from "@/app/(auth)/sign-up/components/SignUpForm";
+import SignUpForm from "@/app/(auth)/sign-up/components/sign-up-form";
 import {
   Dialog,
   DialogContent,

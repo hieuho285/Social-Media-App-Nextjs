@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { UnverifiedUserType } from "@/lib/validations";
+import { getCurrentUser } from "@/services/session";
 import { Prisma } from "@prisma/client";
 import { cache } from "react";
 import "server-only";
@@ -44,4 +45,30 @@ export const createUser = async ({
   });
 
   return user;
+};
+
+export const updateCurrentUserPassword = async (password: string) => {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) return null;
+
+  await prisma.user.update({
+    where: {
+      id: currentUser.id,
+    },
+    data: {
+      password,
+    },
+  });
+};
+
+export const updatePasswordByEmail = async (email: string, password: string) => {
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      password,
+    },
+  });
 };

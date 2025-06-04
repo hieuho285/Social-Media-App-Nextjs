@@ -4,7 +4,7 @@ import { findUserByEmail } from "@/data-access-layer/user";
 import { UnableToSignInError } from "@/lib/error";
 import { getErrorMessage } from "@/lib/utils";
 import { signInSchema, SignInType } from "@/lib/validations";
-import { createUserSession } from "@/services/session/session";
+import { createUserSession } from "@/services/session";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 

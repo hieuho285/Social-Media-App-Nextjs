@@ -1,6 +1,6 @@
 "use client";
 
-import SignInButton from "@/app/(auth)/components/sign-in-button";
+import SignInButton from "@/app/(home)/components/navbar/sign-in-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -12,8 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getInitialsFromName } from "@/lib/utils";
-import { getCurrentUser } from "@/services/session/session";
-import { useQuery } from "@tanstack/react-query";
 import { ClapperboardIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -22,13 +20,13 @@ export default function AuthButton() {
   // if (!currentUser) {
   //   return <SignInButton />;
   // }
-  const { data: user } = useQuery({
-    queryKey: ["user"],
-    queryFn: getCurrentUser,
-  });
+  // const { data: user } = useQuery({
+  //   queryKey: ["user"],
+  //   queryFn: getCurrentUser,
+  // });
 
   // const user = await findUserById(currentUser?.id);
-  // const user = null;
+  const user = null;
   return (
     <>
       {!user ? (

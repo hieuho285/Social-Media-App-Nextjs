@@ -1,9 +1,7 @@
 "use client";
 
 import { signIn } from "@/actions/signIn";
-import OAuthLogin from "@/app/(auth)/components/oauth-buttons";
-import FormPasswordInputWithToggle from "@/app/(auth)/components/password-toggler";
-import SignInButton from "@/app/(auth)/components/sign-in-button";
+import OAuthLogin from "@/app/(auth)/components/oauth-login";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,13 +11,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { signInSchema, SignInType } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-export default function SignInForm() {
+type SignInFormProps = {
+  redirectType?: "soft" | "hard";
+};
+
+export default function SignInForm({ redirectType = "soft" }: SignInFormProps) {
   const form = useForm<SignInType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -65,7 +68,7 @@ export default function SignInForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <FormPasswordInputWithToggle field={field} type="password" />
+                  <PasswordInput placeholder="Password" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -92,7 +95,35 @@ export default function SignInForm() {
         </div>
       </div>
       <OAuthLogin from={from} />
-      <SignInButton variant="p" />
+
+      <p className="text-muted-foreground px-8 text-center text-sm">
+        Don&apos;t have an account?{" "}
+        {redirectType === "soft" ? (
+          <Link
+            replace
+            href={`/sign-up${!!searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+            className="font-semibold underline underline-offset-4 transition hover:text-black"
+          >
+            Sign Up
+          </Link>
+        ) : (
+          <a
+            href={`/sign-up${!!searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+            className="font-semibold underline underline-offset-4 transition hover:text-black"
+          >
+            Sign Up
+          </a>
+        )}
+      </p>
+      <p className="text-muted-foreground px-8 text-center text-sm">
+        Forgot password?{" "}
+        <a
+          href="/forgot-password"
+          className="font-semibold underline underline-offset-4 transition hover:text-black"
+        >
+          Reset now
+        </a>
+      </p>
     </div>
   );
 }

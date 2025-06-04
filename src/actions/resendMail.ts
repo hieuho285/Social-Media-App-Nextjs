@@ -1,18 +1,17 @@
 "use server";
 
-import { getErrorMessage, jwtUserSign, jwtUserVerify } from "@/lib/utils";
-import { unverifiedUserSchema } from "@/lib/validations";
+import { getErrorMessage } from "@/lib/utils";
+import { unverifiedUserSchema, UnverifiedUserType } from "@/lib/validations";
+import { jwtUserSign } from "@/services/jwt";
 import { sendVerificationMail } from "@/services/mail/sendMail";
 
-export const resendVerificationMail = async (token: string) => {
+export const resendVerificationMail = async (values: UnverifiedUserType) => {
   try {
-    const decoded = jwtUserVerify(token);
+    const user = unverifiedUserSchema.parse(values);
 
-    const user = unverifiedUserSchema.parse(decoded);
+    const token = jwtUserSign(user);
 
-    const newToken = jwtUserSign(user);
-
-    await sendVerificationMail({ sendTo: user.email, token: newToken });
+    await sendVerificationMail({ sendTo: user.email, token });
   } catch (error) {
     return {
       error: getErrorMessage(error),

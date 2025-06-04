@@ -1,7 +1,8 @@
-import { getOAuthClient } from "@/auth/oauth/helpers";
-import { createUserSession } from "@/services/session/session";
-import { connectUserToAccount } from "@/services/user/connectUserToOAuthAccount";
-import { oauthProviderSchema, oauthStateSchema } from "@/zod/schemas/";
+import { isOAuthProvider } from "@/lib/utils";
+import { getOAuthClient } from "@/services/auth/oauthClient";
+import { jwtOAuthStateVerify } from "@/services/jwt";
+import { createUserSession } from "@/services/session";
+import { connectUserToOAuthAccount } from "@/services/user";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
@@ -9,44 +10,35 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ provider: string }> },
 ) {
-  const { provider: rawProvider } = await params;
+  const provider = (await params).provider;
 
   const state = request.nextUrl.searchParams.get("state"); // use to validate the response
 
   const code = request.nextUrl.searchParams.get("code"); // use to get the access token
-
-  const { data: provider, success } =
-    oauthProviderSchema.safeParse(rawProvider);
-
-  if (!success || typeof code !== "string" || typeof state !== "string") {
-    redirect(
-      `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
-    );
+  const errorUrl = `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`;
+  if (
+    !isOAuthProvider(provider) ||
+    typeof code !== "string" ||
+    typeof state !== "string"
+  ) {
+    redirect(errorUrl);
   }
 
-  const objState = JSON.parse(decodeURIComponent(state));
-
   try {
+    const { from } = jwtOAuthStateVerify(state);
     const oauthClient = getOAuthClient(provider);
     const oauthUser = await oauthClient.fetchUser(code, state);
 
-    const user = await connectUserToAccount(
-      oauthUser.id,
-      oauthUser.email,
-      oauthUser.username,
-    );
+    const user = await connectUserToOAuthAccount(oauthUser, provider);
 
     await createUserSession(user);
+
+    redirect(from ?? "/");
   } catch (error) {
     console.error("Error during OAuth process:", error);
-    redirect(
-      `/sign-in?oauthError=${encodeURIComponent("Failed to connect. Please try again.")}`,
-    );
+
+    redirect(errorUrl);
   }
-
-  const { data } = oauthStateSchema.safeParse(objState);
-
-  redirect(data?.from ? data.from : "/");
 }
 
 export async function POST(request: Request) {

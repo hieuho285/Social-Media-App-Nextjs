@@ -16,10 +16,31 @@ export const sendVerificationMail = async ({
       to: sendTo,
       subject: "Verify Your Account",
       html: `Please click <a href="${env.NEXT_PUBLIC_APP_URL}/verify-user?token=${token}">here</a> to verify your account.`,
-      text: `Please verify your account by visiting: ${env.NEXT_PUBLIC_APP_URL}/verify-user/${token}`,
+      text: `Please verify your account by visiting: ${env.NEXT_PUBLIC_APP_URL}/verify-user?token=${token}`,
     });
   } catch (error) {
-    console.error("Failed to send verification email:", error);
+    console.error("Failed to send verification mail:", error);
+    throw new UnableToSendMailError();
+  }
+};
+
+export const sendForgotPasswordMail = async ({
+  sendTo,
+  token,
+}: {
+  sendTo: string;
+  token: string;
+}) => {
+  try {
+    await transporter.sendMail({
+      from: env.SMTP_SERVER_USERNAME,
+      to: sendTo,
+      subject: "Reset your password",
+      html: `Please click <a href="${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}">here</a> to verify your account.`,
+      text: `Please verify your account by visiting: ${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`,
+    });
+  } catch (error) {
+    console.error("Failed to send reset password mail:", error);
     throw new UnableToSendMailError();
   }
 };

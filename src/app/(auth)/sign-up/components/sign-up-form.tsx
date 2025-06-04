@@ -4,9 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { signUp } from "@/actions/signUp";
-import OAuthLogin from "@/app/(auth)/components/oauth-buttons";
-import FormPasswordInputWithToggle from "@/app/(auth)/components/password-toggler";
-import SignUpButton from "@/app/(auth)/components/sign-up-button";
+import OAuthLogin from "@/app/(auth)/components/oauth-login";
+import ToastWithLink from "@/app/(auth)/sign-up/components/toast-with-link";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,11 +15,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { signUpSchema, SignUpType } from "@/lib/validations";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 
-export default function SignUpForm() {
+type SignUpFormProps = {
+  redirectType?: "soft" | "hard";
+};
+
+export default function SignUpForm({ redirectType = "soft" }: SignUpFormProps) {
   const form = useForm<SignUpType>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -35,16 +40,23 @@ export default function SignUpForm() {
   const from = searchParams.get("from") ?? undefined;
 
   const onSubmit = async (values: SignUpType) => {
-    await signUp(values);
+    const result = await signUp(values);
 
-    // if (result.success) {
-    //   if (result.sent)
-    //     return toast.success(result.message, { position: "top-center" });
-    //   else
-    //     toast.error(<ToastWithLink token={result.token} />, {
-    //       position: "top-center",
-    //     });
-    // }
+    if (!result)
+      toast.success("Verification link has been sent to your email!", {
+        position: "top-center",
+      });
+    else
+      toast.error(
+        <ToastWithLink
+          email={values.email}
+          name={values.name}
+          password={values.password}
+        />,
+        {
+          position: "top-center",
+        },
+      );
   };
 
   return (
@@ -84,7 +96,7 @@ export default function SignUpForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <FormPasswordInputWithToggle field={field} type="password" />
+                  <PasswordInput placeholder="Password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -97,10 +109,7 @@ export default function SignUpForm() {
               <FormItem>
                 <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
-                  <FormPasswordInputWithToggle
-                    field={field}
-                    type="confirmPassword"
-                  />
+                  <PasswordInput placeholder="confirmPassword" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -122,7 +131,34 @@ export default function SignUpForm() {
         </div>
       </div>
       <OAuthLogin from={from} />
-      <SignUpButton />
+      <p className="text-muted-foreground px-8 text-center text-sm">
+        Already have an account?{" "}
+        {redirectType === "soft" ? (
+          <Link
+            replace
+            href={`/sign-in${!!searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+            className="font-semibold underline underline-offset-4 transition hover:text-black"
+          >
+            Sign In
+          </Link>
+        ) : (
+          <a
+            href={`/sign-in${!!searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+            className="font-semibold underline underline-offset-4 transition hover:text-black"
+          >
+            Sign In
+          </a>
+        )}
+      </p>
+      <p className="text-muted-foreground px-8 text-center text-sm">
+        Forgot password?{" "}
+        <a
+          href="/forgot-password"
+          className="font-semibold underline underline-offset-4 transition hover:text-black"
+        >
+          Reset now
+        </a>
+      </p>
     </div>
   );
 }
