@@ -1,7 +1,16 @@
 import { env } from "@/lib/env";
-import { UnableToSendMailError } from "@/lib/error";
-import { transporter } from "@/services/mail/helpers";
+import { SendMailError } from "@/lib/error";
+import nodemailer from "nodemailer";
 import "server-only";
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  secure: true,
+  auth: {
+    user: env.SMTP_SERVER_USERNAME,
+    pass: env.SMTP_SERVER_PASSWORD,
+  },
+});
 
 export const sendVerificationMail = async ({
   sendTo,
@@ -20,7 +29,7 @@ export const sendVerificationMail = async ({
     });
   } catch (error) {
     console.error("Failed to send verification mail:", error);
-    throw new UnableToSendMailError();
+    throw new SendMailError();
   }
 };
 
@@ -41,6 +50,6 @@ export const sendForgotPasswordMail = async ({
     });
   } catch (error) {
     console.error("Failed to send reset password mail:", error);
-    throw new UnableToSendMailError();
+    throw new SendMailError();
   }
 };

@@ -1,12 +1,12 @@
 "use client";
 
-import { resendVerificationMail } from "@/actions/resendMail";
+import { resendMail } from "@/actions/resendMail";
 import { UnverifiedUserType } from "@/lib/validations";
 import { toast } from "react-toastify";
 
 export default function ToastWithLink(user: UnverifiedUserType) {
   const onClick = async () => {
-    const result = await resendVerificationMail(user);
+    const result = await resendMail(user);
     if (!result)
       toast.success("Verification link has been sent to your email!", {
         position: "top-center",

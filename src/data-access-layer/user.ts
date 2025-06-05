@@ -62,7 +62,10 @@ export const updateCurrentUserPassword = async (password: string) => {
   });
 };
 
-export const updatePasswordByEmail = async (email: string, password: string) => {
+export const updatePasswordByEmail = async (
+  email: string,
+  password: string,
+) => {
   await prisma.user.update({
     where: {
       email,

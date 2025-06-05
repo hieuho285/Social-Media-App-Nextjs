@@ -1,11 +1,6 @@
-import {
-  findUserByEmail,
-  updatePasswordByEmail,
-} from "@/data-access-layer/user";
+import { updatePasswordByEmail } from "@/data-access-layer/user";
 import { prisma } from "@/lib/db";
-import { NoUserFoundError } from "@/lib/error";
 import { hashPassword } from "@/lib/utils";
-import { jwtResetPasswordSign } from "@/services/jwt";
 import { OAuthProvider } from "@prisma/client";
 import "server-only";
 
@@ -45,18 +40,6 @@ export const connectUserToOAuthAccount = async (
       },
     },
   });
-};
-
-export const createResetPasswordToken = async (email: string) => {
-  const user = await findUserByEmail(email);
-
-  if (!user || !user.password) {
-    throw new NoUserFoundError();
-  }
-
-  const token = jwtResetPasswordSign({ email });
-
-  return token;
 };
 
 export const updatePassword = async (email: string, password: string) => {

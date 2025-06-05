@@ -31,7 +31,7 @@ export default function SignInForm({ redirectType = "soft" }: SignInFormProps) {
     },
   });
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? undefined;
+  const from = searchParams.get("from");
   const oauthError = searchParams.get("oauthError");
 
   const onSubmit = async (values: SignInType) => {

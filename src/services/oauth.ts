@@ -44,7 +44,27 @@ export class OAuthClient {
     return url.toString();
   }
 
-  createAuthorizationUrl(from: string | null = null) {
+  private validateOAuthUser(data: unknown) {
+    if (this.provider === "discord") {
+      const user = discordUserSchema.parse(data);
+      return {
+        email: user.email,
+        id: user.id,
+        name: user.global_name ?? user.name,
+      };
+    } else if (this.provider === "github") {
+      const user = githubUserSchema.parse(data);
+      return {
+        email: user.email,
+        id: user.id,
+        name: user.name ?? user.login,
+      };
+    } else {
+      throw new UnsupportedProviderError(this.provider);
+    }
+  }
+
+  createAuthorizationUrl(from: string | null) {
     const url = new URL(this.urls.authorization);
 
     url.searchParams.set("client_id", this.clientId);
@@ -76,8 +96,8 @@ export class OAuthClient {
       throw new Error("Failed to fetch token");
     }
 
-    const rawData = await response.json();
-    const { access_token, token_type } = oauthTokenSchema.parse(rawData);
+    const data = await response.json();
+    const { access_token, token_type } = oauthTokenSchema.parse(data);
 
     return {
       accessToken: access_token,
@@ -102,23 +122,9 @@ export class OAuthClient {
 
     const data = await response.json();
 
-    if (this.provider === "discord") {
-      const user = discordUserSchema.parse(data);
-      return {
-        email: user.email,
-        id: user.id,
-        name: user.global_name ?? user.name,
-      };
-    } else if (this.provider === "github") {
-      const user = githubUserSchema.parse(data);
-      return {
-        email: user.email,
-        id: user.id,
-        name: user.name ?? user.login,
-      };
-    } else {
-      throw new UnsupportedProviderError(this.provider);
-    }
+    const user = this.validateOAuthUser(data);
+
+    return user;
   }
 }
 

@@ -3,9 +3,9 @@
 import { getErrorMessage } from "@/lib/utils";
 import { unverifiedUserSchema, UnverifiedUserType } from "@/lib/validations";
 import { jwtUserSign } from "@/services/jwt";
-import { sendVerificationMail } from "@/services/mail/sendMail";
+import { sendVerificationMail } from "@/services/sendMail";
 
-export const resendVerificationMail = async (values: UnverifiedUserType) => {
+export const resendMail = async (values: UnverifiedUserType) => {
   try {
     const user = unverifiedUserSchema.parse(values);
 

@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UnableToSendMailError } from "@/lib/error";
+import { SendMailError } from "@/lib/error";
 import { forgotPasswordSchema, ForgotPasswordType } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -28,16 +28,13 @@ export default function ForgotPasswordForm() {
     },
   });
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? undefined;
+  const from = searchParams.get("from");
 
   const onSubmit = async (values: ForgotPasswordType) => {
     const result = await forgotPassword(values.email);
 
-    if (result && result.error === new UnableToSendMailError().message) {
-      return toast.error(
-        "Unable to send mail to reset your password. Please try again.",
-        { position: "top-center" },
-      );
+    if (result && result.error === new SendMailError().message) {
+      return toast.error(result.error, { position: "top-center" });
     }
 
     toast.success("Reset password link has been sent to your mail.", {

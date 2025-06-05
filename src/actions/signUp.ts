@@ -1,18 +1,16 @@
 "use server";
 
-import { findUserByEmail } from "@/data-access-layer/user";
 import { getErrorMessage, hashPassword } from "@/lib/utils";
 import { signUpSchema, SignUpType } from "@/lib/validations";
+import { ensureUserDoesNotExist } from "@/services/auth";
 import { jwtUserSign } from "@/services/jwt";
-import { sendVerificationMail } from "@/services/mail/sendMail";
+import { sendVerificationMail } from "@/services/sendMail";
 
 export const signUp = async (unsafeData: SignUpType) => {
   try {
     const { name, email, password } = signUpSchema.parse(unsafeData);
 
-    const existingUser = await findUserByEmail(email);
-    if (existingUser && existingUser.password)
-      throw new Error("User already exists");
+    await ensureUserDoesNotExist(email);
 
     const hashedPassword = await hashPassword(password);
 

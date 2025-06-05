@@ -1,13 +1,13 @@
 "use server";
 
 import { getErrorMessage } from "@/lib/utils";
-import { getOAuthClient } from "@/services/auth/oauthClient";
+import { getOAuthClient } from "@/services/oauth";
 import { OAuthProvider } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 export const oauthSignIn = async (
   provider: OAuthProvider,
-  from: string | null = null,
+  from: string | null ,
 ) => {
   try {
     const oauthClient = getOAuthClient(provider);

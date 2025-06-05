@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/input";
-import { UnableToSendMailError } from "@/lib/error";
+import { SendMailError } from "@/lib/error";
 import { resetPasswordSchema, ResetPasswordType } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -30,16 +30,21 @@ export default function ResetPasswordForm() {
   });
 
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? undefined;
+  const token = searchParams.get("token");
 
   const onSubmit = async (values: ResetPasswordType) => {
-    const result = await resetPassword(values);
+    if (!token) {
+      toast.error("Invalid token.", {
+        position: "top-center",
+      });
+      return;
+    }
 
-    if (result && result.error === new UnableToSendMailError().message) {
-      return toast.error(
-        "Unable to send mail to reset your password. Please try again.",
-        { position: "top-center" },
-      );
+    const result = await resetPassword(values, token);
+
+    if (result && result.error === new SendMailError().message) {
+      toast.error(result.error, { position: "top-center" });
+      return;
     }
 
     toast.success("Reset password link has been sent to your mail.", {
@@ -98,7 +103,7 @@ export default function ResetPasswordForm() {
           </span>
         </div>
       </div>
-      <OAuthLogin from={from} />
+      <OAuthLogin />
 
       <p className="text-muted-foreground px-8 text-center text-sm">
         Don&apos;t have an account?{" "}

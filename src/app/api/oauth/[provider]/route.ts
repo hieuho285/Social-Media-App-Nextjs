@@ -1,6 +1,6 @@
 import { isOAuthProvider } from "@/lib/utils";
-import { getOAuthClient } from "@/services/auth/oauthClient";
 import { jwtOAuthStateVerify } from "@/services/jwt";
+import { getOAuthClient } from "@/services/oauth";
 import { createUserSession } from "@/services/session";
 import { connectUserToOAuthAccount } from "@/services/user";
 import { redirect } from "next/navigation";

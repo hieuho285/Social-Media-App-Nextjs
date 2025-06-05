@@ -1,33 +1,18 @@
 "use server";
 
-import { findUserByEmail } from "@/data-access-layer/user";
-import { UnableToSignInError } from "@/lib/error";
 import { getErrorMessage } from "@/lib/utils";
 import { signInSchema, SignInType } from "@/lib/validations";
+import { validateUserCredentials } from "@/services/auth";
 import { createUserSession } from "@/services/session";
-import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
-export const signIn = async (unsafeData: SignInType, from?: string) => {
+export const signIn = async (unsafeData: SignInType, from: string | null) => {
   try {
     const { email, password } = signInSchema.parse(unsafeData);
 
-    const existingUser = await findUserByEmail(email);
+    const user = await validateUserCredentials(email, password);
 
-    if (!existingUser || !existingUser?.password) {
-      throw new UnableToSignInError();
-    }
-
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      existingUser.password,
-    );
-
-    if (!isPasswordValid) {
-      throw new UnableToSignInError();
-    }
-
-    await createUserSession(existingUser);
+    await createUserSession(user);
 
     redirect(from ?? "/");
   } catch (error) {

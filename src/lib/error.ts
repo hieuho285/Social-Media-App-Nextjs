@@ -1,7 +1,7 @@
-import { z } from "zod";
+import { ZodError } from "zod";
 
 export class InvalidError extends Error {
-  constructor(input: string, zodError?: z.ZodError) {
+  constructor(input: string, zodError?: ZodError) {
     super(`Invalid ${input}`);
     if (zodError) {
       this.cause = zodError;
@@ -15,7 +15,7 @@ export class InvalidError extends Error {
 }
 
 export class NoFoundError extends Error {
-  constructor(input: string, zodError?: z.ZodError) {
+  constructor(input: string, zodError?: ZodError) {
     super(`No ${input} Found`);
     if (zodError) {
       this.cause = zodError;
@@ -29,7 +29,7 @@ export class NoFoundError extends Error {
 }
 
 export class UnableToError extends Error {
-  constructor(input: string, zodError?: z.ZodError) {
+  constructor(input: string, zodError?: ZodError) {
     super(`Unable To ${input}`);
     if (zodError) {
       this.cause = zodError;
@@ -59,5 +59,12 @@ export class AuthorizationError extends Error {
   constructor() {
     super("You do not have permission to perform this action.");
     this.name = "AuthorizationError";
+  }
+}
+
+export class SendMailError extends Error {
+  constructor() {
+    super("Error during sending email. Please try again.");
+    this.name = "SendMailError";
   }
 }

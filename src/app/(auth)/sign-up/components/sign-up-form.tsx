@@ -37,7 +37,7 @@ export default function SignUpForm({ redirectType = "soft" }: SignUpFormProps) {
   });
 
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? undefined;
+  const from = searchParams.get("from") ;
 
   const onSubmit = async (values: SignUpType) => {
     const result = await signUp(values);

@@ -2,8 +2,8 @@
 
 import { getErrorMessage } from "@/lib/utils";
 import { forgotPasswordSchema } from "@/lib/validations";
-import { sendForgotPasswordMail } from "@/services/mail/sendMail";
-import { createResetPasswordToken } from "@/services/user";
+import { createResetPasswordToken } from "@/services/auth";
+import { sendForgotPasswordMail } from "@/services/sendMail";
 
 export const forgotPassword = async (data: string) => {
   try {

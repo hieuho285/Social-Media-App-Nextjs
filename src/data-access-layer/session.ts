@@ -1,8 +1,10 @@
-import { CACHE_USER_SESSION_KEY, SESSION_EXPIRE_TIME } from "@/lib/constants";
 import { redisClient } from "@/lib/redis";
 import { userSessionSchema, UserSessionType } from "@/lib/validations";
 import { getCurrentUser } from "@/services/session";
 import "server-only";
+
+const CACHE_USER_SESSION_KEY = "session:user";
+const SESSION_EXPIRE_TIME = 10 * 60;
 
 export const getUserSessionFromCache = async (sessionId: string) => {
   const rawUser = await redisClient.get(
@@ -12,9 +14,9 @@ export const getUserSessionFromCache = async (sessionId: string) => {
     return null;
   }
 
-  const { success, data } = userSessionSchema.safeParse(rawUser);
+  const user = userSessionSchema.parse(rawUser);
 
-  return success ? data : null;
+  return user ? user : null;
 };
 
 export const setUserSessionInCache = async (

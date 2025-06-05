@@ -58,6 +58,9 @@ export const jwtVerify = (token: string) => {
 export const hashPassword = (password: string) => {
   return bcrypt.hash(password, 10);
 };
+export const comparePassword = (password: string, hashedPassword: string) => {
+  return bcrypt.compare(password, hashedPassword);
+};
 
 export const isOAuthProvider = (value: string): value is OAuthProvider => {
   return Object.values(OAuthProvider).includes(value as OAuthProvider);

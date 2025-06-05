@@ -4,10 +4,10 @@ import { oauthSignIn } from "@/actions/oauthSignIn";
 import { Button } from "@/components/ui/button";
 
 type OAuthLoginProps = {
-  from?: string;
+  from?: string | null;
 };
 
-export default function OAuthLogin({ from }: OAuthLoginProps) {
+export default function OAuthLogin({ from = null }: OAuthLoginProps) {
   return (
     <div className="flex flex-col gap-3">
       <Button
