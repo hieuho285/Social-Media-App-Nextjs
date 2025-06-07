@@ -1,20 +1,9 @@
-import { getCurrentSession } from "@/services/session";
-import { z } from "zod";
-import { baseProcedure, createTRPCRouter } from "../init";
+import { userRouter } from "@/trpc/routers/userRouter";
+import { createTRPCRouter } from "../init";
 
 export const appRouter = createTRPCRouter({
-  hello: baseProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      }),
-    )
-    .query(async (opts) => {
-      const session = await getCurrentSession();
-      return {
-        greeting: `hello ${opts.input.text}`,
-      };
-    }),
+  user: userRouter,
 });
+
 // export type definition of API
 export type AppRouter = typeof appRouter;

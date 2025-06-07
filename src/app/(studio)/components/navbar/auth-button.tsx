@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getInitialsFromName } from "@/lib/utils";
 import { ClapperboardIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
@@ -23,9 +24,9 @@ export default function AuthButton() {
   //   queryKey: ["user"],
   //   queryFn: getCurrentSession,
   // });
+  const user = useCurrentUser();
 
   // const user = await findUserById(currentUser?.id);
-  const user = null;
   return (
     <>
       {!user ? (
