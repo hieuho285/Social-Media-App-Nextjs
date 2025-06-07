@@ -14,7 +14,7 @@ import { ClapperboardIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 
 export default async function AuthButton() {
-  // const currentUser = await getCurrentUser();
+  // const currentUser = await getCurrentSession();
   // if (!currentUser) {
   //   return <SignInButton />;
   // }

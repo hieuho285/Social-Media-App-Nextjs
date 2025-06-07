@@ -1,5 +1,5 @@
-import ReactQueryProvider from "@/components/providers/react-query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { TRPCReactProvider } from "@/trpc/client";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ToastContainer } from "react-toastify";
@@ -27,13 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} overscroll-none antialiased`}>
-        <ReactQueryProvider>
+        <TRPCReactProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <ToastContainer stacked />
             <div>{auth}</div>
             {children}
           </ThemeProvider>
-        </ReactQueryProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

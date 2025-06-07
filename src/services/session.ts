@@ -13,7 +13,7 @@ import "server-only";
 
 const SESSION_EXPIRE_TIME = 60 * 60 * 24 * 7; // 7 days
 
-const COOKIE_USER_SESSION_KEY = "user-session";
+export const COOKIE_USER_SESSION_KEY = "user-session";
 
 export const createUserSession = async (user: User) => {
   const sessionId = createRandomId();
@@ -29,7 +29,7 @@ export const createUserSession = async (user: User) => {
   });
 };
 
-export const getCurrentUser = cache(async () => {
+export const getCurrentSession = cache(async () => {
   const cookieStore = await cookies();
   const session = cookieStore.get(COOKIE_USER_SESSION_KEY);
   if (!session) return null;
@@ -37,15 +37,15 @@ export const getCurrentUser = cache(async () => {
   const cachedUser = await getUserSessionFromCache(session.value);
   if (!cachedUser) return null;
 
-  return { ...cachedUser, sessionId: session.value };
+  return { user: cachedUser, id: session.value };
 });
 
 export const destroyCurrentSession = async () => {
-  const user = await getCurrentUser();
+  const session = await getCurrentSession();
   const cookieStore = await cookies();
-  if (!user) throw new NoFoundError("Session");
+  if (!session) throw new NoFoundError("Session");
 
-  await deleteUserSessionFromCache(user.sessionId);
+  await deleteUserSessionFromCache(session.user.id);
 
   cookieStore.delete(COOKIE_USER_SESSION_KEY);
 };

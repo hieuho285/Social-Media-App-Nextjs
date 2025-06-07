@@ -16,13 +16,12 @@ import { ClapperboardIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function AuthButton() {
-  // const currentUser = await getCurrentUser();
   // if (!currentUser) {
   //   return <SignInButton />;
   // }
   // const { data: user } = useQuery({
   //   queryKey: ["user"],
-  //   queryFn: getCurrentUser,
+  //   queryFn: getCurrentSession,
   // });
 
   // const user = await findUserById(currentUser?.id);

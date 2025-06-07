@@ -1,6 +1,6 @@
 import { redisClient } from "@/lib/redis";
 import { userSessionSchema, UserSessionType } from "@/lib/validations";
-import { getCurrentUser } from "@/services/session";
+import { getCurrentSession } from "@/services/session";
 import "server-only";
 
 const CACHE_USER_SESSION_KEY = "session:user";
@@ -35,8 +35,8 @@ export const deleteUserSessionFromCache = async (sessionId: string) => {
 };
 
 export const updateSessionExpiration = async () => {
-  const user = await getCurrentUser();
-  if (!user) return null;
+  const session = await getCurrentSession();
+  if (!session) return null;
 
-  await setUserSessionInCache(user.sessionId, user);
+  await setUserSessionInCache(session.id, session.user);
 };

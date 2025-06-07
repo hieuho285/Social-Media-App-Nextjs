@@ -20,6 +20,8 @@ import { signUpSchema, SignUpType } from "@/lib/validations";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 
 type SignUpFormProps = {
   redirectType?: "soft" | "hard";
@@ -37,7 +39,11 @@ export default function SignUpForm({ redirectType = "soft" }: SignUpFormProps) {
   });
 
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ;
+  const from = searchParams.get("from");
+
+  const trpc = useTRPC();
+  const greeting = useQuery(trpc.hello.queryOptions({ text: "world" }));
+
 
   const onSubmit = async (values: SignUpType) => {
     const result = await signUp(values);

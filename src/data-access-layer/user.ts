@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { UnverifiedUserType } from "@/lib/validations";
-import { getCurrentUser } from "@/services/session";
+import { getCurrentSession } from "@/services/session";
 import { Prisma } from "@prisma/client";
 import { cache } from "react";
 import "server-only";
@@ -48,13 +48,13 @@ export const createUser = async ({
 };
 
 export const updateCurrentUserPassword = async (password: string) => {
-  const currentUser = await getCurrentUser();
+  const session = await getCurrentSession();
 
-  if (!currentUser) return null;
+  if (!session) return null;
 
   await prisma.user.update({
     where: {
-      id: currentUser.id,
+      id: session.user.id,
     },
     data: {
       password,

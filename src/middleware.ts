@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
 }
 
 async function middlewareAuth(request: NextRequest) {
-  // const user = await getCurrentUser();
+  // const user = await getCurrentSession();
   const user = null;
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "ADMIN";
