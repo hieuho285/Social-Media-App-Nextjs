@@ -1,5 +1,5 @@
-import HomeNavbar from "@/app/(home)/components/navbar/home-navbar";
-import HomeSidebar from "@/app/(home)/components/sidebar/home-sidebar";
+import HomeNavbar from "@/app/(home)/components/navbar";
+import HomeSidebar from "@/app/(home)/components/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 type HomeLayoutProps = {

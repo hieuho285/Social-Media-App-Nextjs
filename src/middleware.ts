@@ -1,24 +1,26 @@
 import { env } from "@/lib/env";
+import { getCurrentSession } from "@/services/session";
 import { NextRequest, NextResponse } from "next/server";
 
-const privateRoutes = ["/private"];
+const protectedRoutes = ["/studio"];
 const adminRoutes = ["/admin"];
 const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 export async function middleware(request: NextRequest) {
-  // const response = await middlewareAuth(request);
+  const response = await middlewareAuth(request);
   // await updateSessionExpiration();
-  // return response;
+  return response;
 }
 
 async function middlewareAuth(request: NextRequest) {
-  // const user = await getCurrentSession();
-  const user = null;
-  const isAuthenticated = !!user;
-  const isAdmin = user?.role === "ADMIN";
+  const session = await getCurrentSession();
+  const isAuthenticated = !!session;
+  const isAdmin = session?.user?.role === "ADMIN";
 
   if (
-    privateRoutes.some((route) => request.nextUrl.pathname.startsWith(route)) &&
+    protectedRoutes.some((route) =>
+      request.nextUrl.pathname.startsWith(route),
+    ) &&
     !isAuthenticated
   ) {
     const from = encodeURIComponent(

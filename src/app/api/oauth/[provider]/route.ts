@@ -3,6 +3,7 @@ import { jwtOAuthStateVerify } from "@/services/jwt";
 import { getOAuthClient } from "@/services/oauth";
 import { createUserSession } from "@/services/session";
 import { connectUserToOAuthAccount } from "@/services/user";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
@@ -35,6 +36,9 @@ export async function GET(
 
     redirect(from ?? "/");
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
     console.error("Error during OAuth process:", error);
 
     redirect(errorUrl);

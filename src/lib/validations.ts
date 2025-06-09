@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import { z } from "zod";
 
 const requiredStr = z.string().trim().min(1, "Required");
@@ -75,7 +75,7 @@ export type ForgotPasswordType = z.infer<typeof forgotPasswordSchema>;
 
 export const discordUserSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  username: z.string(),
   global_name: z.string().nullable(),
   email: z.string().email(),
 });
@@ -90,4 +90,8 @@ export const githubUserSchema = z.object({
 export const oauthTokenSchema = z.object({
   access_token: z.string(),
   token_type: z.string(),
+});
+
+export const userOmitPassword = Prisma.validator<Prisma.UserOmit>()({
+  password: true,
 });

@@ -1,6 +1,8 @@
-import AuthButton from "@/app/(studio)/components/navbar/auth-button";
+import AuthButton from "@/components/auth/auth-button";
 import { ModeToggle } from "@/components/theme-toggler";
+import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { PlusIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,11 +19,15 @@ export default async function StudioNavbar() {
           </Link>
         </div>
 
-        {/* Search bar */}
-
         {/* User profile and notifications */}
         <div className="ml-auto flex shrink-0 items-center gap-4">
           <ModeToggle />
+          <Button asChild variant="secondary">
+            <Link href="/studio/notifications">
+              <PlusIcon />
+              Create
+            </Link>
+          </Button>
           <AuthButton />
         </div>
       </div>

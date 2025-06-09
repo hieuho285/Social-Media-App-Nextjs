@@ -1,5 +1,5 @@
-import StudioNavbar from "@/app/(studio)/components/navbar/studio-navbar";
-import StudioSidebar from "@/app/(studio)/components/sidebar/studio";
+import StudioNavbar from "@/app/(studio)/components/navbar";
+import StudioSidebar from "@/app/(studio)/components/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 type StudioLayoutProps = {

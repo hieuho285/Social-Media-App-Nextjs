@@ -50,7 +50,7 @@ export class OAuthClient {
       return {
         email: user.email,
         id: user.id,
-        name: user.global_name ?? user.name,
+        name: user.global_name ?? user.username,
       };
     } else if (this.provider === "github") {
       const user = githubUserSchema.parse(data);

@@ -1,7 +1,8 @@
 "use client";
 
-import SignInButton from "@/app/(home)/components/navbar/sign-in-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { signOut } from "@/actions/signOut";
+import SignInButton from "@/components/auth/sign-in-button";
+import { UserAvatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,22 +12,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { getInitialsFromName } from "@/lib/utils";
+import { redirectUrl } from "@/lib/utils";
 import { ClapperboardIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function AuthButton() {
-  // if (!currentUser) {
-  //   return <SignInButton />;
-  // }
-  // const { data: user } = useQuery({
-  //   queryKey: ["user"],
-  //   queryFn: getCurrentSession,
-  // });
-  const user = useCurrentUser();
+  const { data: user, isLoading } = useCurrentUser();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
-  // const user = await findUserById(currentUser?.id);
+  const signOutHandler = async () => {
+    await signOut();
+    window.location.assign(redirectUrl(pathname, searchParams.toString()));
+  };
+
+  if (isLoading) {
+    return <Skeleton className="size-8 rounded-full"></Skeleton>;
+  }
+
   return (
     <>
       {!user ? (
@@ -34,24 +40,12 @@ export default function AuthButton() {
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="cursor-pointer">
-              <AvatarImage
-                src={user.avatarUrl ?? "https://github.com/shadcn.png"}
-              />
-              <AvatarFallback>{getInitialsFromName(user.name)}</AvatarFallback>
-            </Avatar>
+            <UserAvatar />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="min-w-74" align="end">
             <DropdownMenuLabel className="flex items-center gap-2 py-3">
               <div className="flex flex-1 justify-center">
-                <Avatar className="size-10">
-                  <AvatarImage
-                    src={user.avatarUrl ?? "https://github.com/shadcn.png"}
-                  />
-                  <AvatarFallback>
-                    {getInitialsFromName(user.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar className="size-10" />
               </div>
               <div className="flex-5">
                 <p className="font-semibold">{user.name}</p>
@@ -73,7 +67,10 @@ export default function AuthButton() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="cursor-pointer py-3">
+            <DropdownMenuItem
+              onClick={signOutHandler}
+              className="cursor-pointer py-3"
+            >
               <div className="flex flex-1 justify-center">
                 <LogOutIcon />
               </div>

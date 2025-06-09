@@ -5,5 +5,5 @@ export const useCurrentUser = () => {
   const trpc = useTRPC();
   const result = useQuery(trpc.user.current.queryOptions());
 
-  return result.data;
+  return result;
 };

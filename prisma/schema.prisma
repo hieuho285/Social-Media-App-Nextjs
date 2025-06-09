@@ -2,8 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["omitApi"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -32,6 +31,7 @@ model User {
   avatarUrl String?
 
   accounts OAuthAccount[]
+  Video    Video[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,8 +52,26 @@ model OAuthAccount {
 }
 
 model Category {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  name  String  @unique
+  Video Video[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Video {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  url         String  @unique
+  thumbnail   String?
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String?   @db.ObjectId
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

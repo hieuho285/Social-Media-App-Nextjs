@@ -3,6 +3,7 @@ import {
   getUserSessionFromCache,
   setUserSessionInCache,
 } from "@/data-access-layer/session";
+import { findUserWithoutPasswordById } from "@/data-access-layer/user";
 import { NoFoundError } from "@/lib/error";
 import { createRandomId } from "@/lib/utils";
 import { userSessionSchema } from "@/lib/validations";
@@ -49,3 +50,14 @@ export const destroyCurrentSession = async () => {
 
   cookieStore.delete(COOKIE_USER_SESSION_KEY);
 };
+
+export const getCurrentUser = cache(async () => {
+  const session = await getCurrentSession();
+  if (!session) return null;
+
+  const user = await findUserWithoutPasswordById(session.user.id);
+
+  if (!user) return null;
+
+  return user;
+});

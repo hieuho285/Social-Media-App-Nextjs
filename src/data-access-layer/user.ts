@@ -1,35 +1,25 @@
 import { prisma } from "@/lib/db";
-import { UnverifiedUserType } from "@/lib/validations";
+import { UnverifiedUserType, userOmitPassword } from "@/lib/validations";
 import { getCurrentSession } from "@/services/session";
-import { Prisma } from "@prisma/client";
 import { cache } from "react";
 import "server-only";
 
-export const findUserById = cache(
-  async (id: string, args?: Omit<Prisma.UserFindFirstArgs, "where">) => {
-    const user = await prisma.user.findFirst({
-      where: {
-        id,
-      },
-      ...args,
-    });
+export const findUserWithoutPasswordById = cache(async (id: string) => {
+  return await prisma.user.findUnique({
+    where: { id },
+    omit: userOmitPassword,
+  });
+});
 
-    return user;
-  },
-);
+export const findUserByEmail = cache(async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
 
-export const findUserByEmail = cache(
-  async (email: string, args?: Omit<Prisma.UserFindUniqueArgs, "where">) => {
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      ...args,
-    });
-
-    return user;
-  },
-);
+  return user;
+});
 
 export const createUser = async ({
   name,
