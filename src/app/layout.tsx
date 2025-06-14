@@ -3,6 +3,7 @@ import { TRPCReactProvider } from "@/trpc/client";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ToastContainer } from "react-toastify";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,6 +31,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <ToastContainer stacked />
+            <Toaster />
             <div>{auth}</div>
             {children}
           </ThemeProvider>

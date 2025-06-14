@@ -4,7 +4,7 @@ import { getCurrentSession } from "@/services/session";
 import "server-only";
 
 const CACHE_USER_SESSION_KEY = "session:user";
-const SESSION_EXPIRE_TIME = 10 * 60;
+const SESSION_EXPIRE_TIME = 10 * 600;
 
 export const getUserSessionFromCache = async (sessionId: string) => {
   const rawUser = await redisClient.get(

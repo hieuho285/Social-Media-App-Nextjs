@@ -35,6 +35,8 @@ export const getCurrentSession = cache(async () => {
   const session = cookieStore.get(COOKIE_USER_SESSION_KEY);
   if (!session) return null;
 
+  console.log(session.value);
+
   const cachedUser = await getUserSessionFromCache(session.value);
   if (!cachedUser) return null;
 

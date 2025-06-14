@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
 
 async function middlewareAuth(request: NextRequest) {
   const session = await getCurrentSession();
+  console.log("middleware" + session);
   const isAuthenticated = !!session;
   const isAdmin = session?.user?.role === "ADMIN";
 
