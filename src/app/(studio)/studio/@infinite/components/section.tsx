@@ -1,8 +1,9 @@
 "use client";
 
-import { PaginationDemo } from "@/app/(studio)/components/pagination";
+import InfiniteScroll from "@/app/(studio)/studio/@infinite/components/infinite-scroll";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { Loader2Icon } from "lucide-react";
 
 export default function Section() {
   const trpc = useTRPC();
@@ -18,17 +19,16 @@ export default function Section() {
 
   return (
     <div className="relative">
-      <PaginationDemo />
-      {/* {JSON.stringify(data.pages)} */}
+      {JSON.stringify(data.pages)}
 
-      {/* {isFetchingNextPage && (
+      {isFetchingNextPage && (
         <div className="flex justify-center gap-1">
           <Loader2Icon className="animate-spin" /> <span>Loading...</span>
         </div>
       )}
       {!hasNextPage && <p>End here</p>}
 
-      <InfiniteScroll fetchNextPage={fetchNextPage} hasNextPage={hasNextPage} /> */}
+      <InfiniteScroll fetchNextPage={fetchNextPage} hasNextPage={hasNextPage} />
     </div>
   );
 }

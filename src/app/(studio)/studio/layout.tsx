@@ -1,10 +1,16 @@
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
-
 type StudioLayoutProps = {
-  section: React.ReactNode;
+  infinite: React.ReactNode;
+  paginate: React.ReactNode;
 };
 
-export default async function StudioLayout({ section }: StudioLayoutProps) {
-  prefetch(trpc.studio.getMany.infiniteQueryOptions({}));
-  return <HydrateClient>{section}</HydrateClient>;
+export default async function StudioLayout({
+  infinite,
+  paginate,
+}: StudioLayoutProps) {
+  return (
+    <div>
+      {infinite}
+      {paginate}
+    </div>
+  );
 }
